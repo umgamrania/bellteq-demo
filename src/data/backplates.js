@@ -5,7 +5,7 @@ export const BACKPLATES = [
         "rows": 1,
         "slotWidth": 40,
         "name": "Backplate 1",
-        "src": "/backplates/1.png",
+        "src": "./backplates/1.png",
         "alt": "Backplate design 1"
     },
     {
@@ -14,7 +14,7 @@ export const BACKPLATES = [
         "rows": 1,
         "slotWidth": 40,
         "name": "Backplate 2",
-        "src": "/backplates/2.png",
+        "src": "./backplates/2.png",
         "alt": "Backplate design 2"
     },
     {
@@ -23,7 +23,7 @@ export const BACKPLATES = [
         "rows": 1,
         "slotWidth": 40,
         "name": "Backplate 3",
-        "src": "/backplates/3.png",
+        "src": "./backplates/3.png",
         "alt": "Backplate design 3"
     },
     {
@@ -32,7 +32,7 @@ export const BACKPLATES = [
         "rows": 1,
         "slotWidth": 40,
         "name": "Backplate 4",
-        "src": "/backplates/4.png",
+        "src": "./backplates/4.png",
         "alt": "Backplate design 4"
     },
     {
@@ -41,7 +41,7 @@ export const BACKPLATES = [
         "rows": 2,
         "slotWidth": 41,
         "name": "Backplate 5",
-        "src": "/backplates/5.png",
+        "src": "./backplates/5.png",
         "alt": "Backplate design 5"
     },
     {
@@ -50,7 +50,7 @@ export const BACKPLATES = [
         "rows": 1,
         "slotWidth": 41.25,
         "name": "Backplate 6",
-        "src": "/backplates/6.png",
+        "src": "./backplates/6.png",
         "alt": "Backplate design 6"
     },
     {
@@ -59,7 +59,7 @@ export const BACKPLATES = [
         "rows": 2,
         "slotWidth": 41,
         "name": "Backplate 7",
-        "src": "/backplates/7.png",
+        "src": "./backplates/7.png",
         "alt": "Backplate design 7"
     },
     {
@@ -68,7 +68,7 @@ export const BACKPLATES = [
         "rows": 2,
         "slotWidth": 41.65,
         "name": "Backplate 8",
-        "src": "/backplates/8.png",
+        "src": "./backplates/8.png",
         "alt": "Backplate design 8"
     },
     {
@@ -77,7 +77,7 @@ export const BACKPLATES = [
         "rows": 3,
         "slotWidth": 41,
         "name": "Backplate 9",
-        "src": "/backplates/9.png",
+        "src": "./backplates/9.png",
         "alt": "Backplate design 9"
     }
 ];

@@ -24,6 +24,6 @@ export const ICONS = ICON_FILENAMES.map((filename) => {
         id,
         name: `Icon ${id}`,
         filename,
-        src: `/icons/${filename}`,
+        src: `./icons/${filename}`,
     };
 });

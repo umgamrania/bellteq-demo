@@ -105,13 +105,6 @@ export default function ExportSelector() {
                 }
             }
 
-            const printWindow = window.open("", "_blank");
-            if (!printWindow) {
-                alert("Please allow popups to generate the printable PDF quotation.");
-                setIsExportingPdf(false);
-                return;
-            }
-
             const today = new Date();
             const dateString = today.toLocaleDateString("en-IN", {
                 day: "2-digit",
@@ -184,7 +177,7 @@ export default function ExportSelector() {
                 `;
             }
 
-            printWindow.document.write(`
+            const printContent = `
                 <!DOCTYPE html>
                 <html>
                 <head>
@@ -193,6 +186,11 @@ export default function ExportSelector() {
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap');
                         
+                        @page {
+                            size: A4 portrait;
+                            margin: 10mm 12mm;
+                        }
+
                         * {
                             box-sizing: border-box;
                             margin: 0;
@@ -202,9 +200,9 @@ export default function ExportSelector() {
                             font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                             background: #ffffff;
                             color: #1f2937;
-                            padding: 36px 44px;
-                            font-size: 13px;
-                            line-height: 1.5;
+                            padding: 20px 24px;
+                            font-size: 12px;
+                            line-height: 1.4;
                             max-width: 860px;
                             margin: 0 auto;
                         }
@@ -213,29 +211,29 @@ export default function ExportSelector() {
                         .header-table {
                             width: 100%;
                             border-collapse: collapse;
-                            margin-bottom: 20px;
+                            margin-bottom: 10px;
                         }
                         .brand-logo-img {
-                            height: 48px;
+                            height: 50px;
                             width: auto;
-                            max-width: 240px;
+                            max-width: 260px;
                             object-fit: contain;
                             filter: brightness(0);
                             margin-bottom: 6px;
                             display: block;
                         }
                         .company-address {
-                            font-size: 11px;
+                            font-size: 10.5px;
                             color: #6b7280;
-                            line-height: 1.4;
-                            margin-top: 4px;
+                            line-height: 1.35;
+                            margin-top: 2px;
                         }
                         .doc-badge {
                             text-align: right;
                             vertical-align: middle;
                         }
                         .doc-title {
-                            font-size: 24px;
+                            font-size: 20px;
                             font-weight: 800;
                             color: #111827;
                             letter-spacing: 0.04em;
@@ -245,22 +243,22 @@ export default function ExportSelector() {
                         .meta-ribbon {
                             background: #f9fafb;
                             border: 1px solid #e5e7eb;
-                            border-radius: 8px;
-                            padding: 10px 16px;
-                            margin-bottom: 20px;
+                            border-radius: 6px;
+                            padding: 7px 14px;
+                            margin-bottom: 36px;
                             display: flex;
                             align-items: center;
                             gap: 8px;
                         }
                         .meta-label {
-                            font-size: 11px;
+                            font-size: 10px;
                             font-weight: 700;
                             color: #6b7280;
                             text-transform: uppercase;
                             letter-spacing: 0.05em;
                         }
                         .meta-value {
-                            font-size: 12px;
+                            font-size: 11.5px;
                             font-weight: 600;
                             color: #111827;
                         }
@@ -269,59 +267,59 @@ export default function ExportSelector() {
                         .visual-section {
                             background: #fafafa;
                             border: 1px solid #e5e7eb;
-                            border-radius: 10px;
-                            padding: 16px;
-                            margin-bottom: 24px;
+                            border-radius: 8px;
+                            padding: 8px 12px;
+                            margin-bottom: 12px;
                             text-align: center;
                         }
                         .visual-title {
-                            font-size: 11px;
+                            font-size: 10px;
                             font-weight: 700;
                             text-transform: uppercase;
                             letter-spacing: 0.06em;
                             color: #6b7280;
                             text-align: left;
-                            margin-bottom: 12px;
+                            margin-bottom: 4px;
                         }
                         .visual-image {
-                            max-height: 200px;
+                            max-height: 120px;
                             max-width: 100%;
                             object-fit: contain;
                             margin: 0 auto;
                             display: block;
-                            filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.1));
+                            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.08));
                         }
 
                         /* BOM Table */
                         .section-heading {
-                            font-size: 13px;
+                            font-size: 12px;
                             font-weight: 700;
                             text-transform: uppercase;
                             letter-spacing: 0.04em;
                             color: #111827;
-                            margin-bottom: 8px;
+                            margin-bottom: 6px;
                         }
                         .bom-table {
                             width: 100%;
                             border-collapse: collapse;
-                            margin-bottom: 20px;
+                            margin-bottom: 10px;
                         }
                         .bom-table th {
                             background: #f3f4f6;
                             color: #374151;
-                            font-size: 11px;
+                            font-size: 10.5px;
                             font-weight: 700;
                             text-transform: uppercase;
                             letter-spacing: 0.04em;
-                            padding: 9px 12px;
+                            padding: 6px 10px;
                             border-top: 1px solid #e5e7eb;
                             border-bottom: 1.5px solid #d1d5db;
                             text-align: left;
                         }
                         .bom-table td {
-                            padding: 10px 12px;
+                            padding: 6px 10px;
                             border-bottom: 1px solid #e5e7eb;
-                            font-size: 12px;
+                            font-size: 11px;
                             color: #1f2937;
                         }
                         .bom-table tr:nth-child(even) {
@@ -332,20 +330,20 @@ export default function ExportSelector() {
                         .summary-wrapper {
                             display: flex;
                             justify-content: flex-end;
-                            margin-top: 12px;
+                            margin-top: 6px;
                         }
                         .summary-card {
-                            width: 320px;
+                            width: 290px;
                             background: #ffffff;
                             border: 1px solid #e5e7eb;
-                            border-radius: 8px;
-                            padding: 14px 16px;
+                            border-radius: 6px;
+                            padding: 8px 12px;
                         }
                         .sum-row {
                             display: flex;
                             justify-content: space-between;
-                            font-size: 12px;
-                            margin-bottom: 6px;
+                            font-size: 11px;
+                            margin-bottom: 4px;
                             color: #4b5563;
                         }
                         .sum-val {
@@ -359,22 +357,23 @@ export default function ExportSelector() {
                         .divider {
                             height: 1px;
                             background: #e5e7eb;
-                            margin: 10px 0;
+                            margin: 5px 0;
                         }
                         .grand-total-row {
                             display: flex;
                             justify-content: space-between;
                             align-items: center;
-                            font-size: 16px;
+                            font-size: 13.5px;
                             font-weight: 800;
                             color: #111827;
-                            padding-top: 4px;
+                            padding-top: 2px;
                         }
 
                         @media print {
-                            body {
-                                padding: 15mm;
-                                max-width: 100%;
+                            html, body {
+                                padding: 0 !important;
+                                margin: 0 !important;
+                                max-width: 100% !important;
                             }
                             .visual-section {
                                 break-inside: avoid;
@@ -390,7 +389,7 @@ export default function ExportSelector() {
                     <table class="header-table">
                         <tr>
                             <td>
-                                <img src="${window.location.origin}/logo.webp" alt="Bellateq" class="brand-logo-img" />
+                                <img src="${new URL('logo.webp', window.location.href).href}" alt="Bellateq" class="brand-logo-img" />
                                 <div class="company-address">
                                     Company Address<br/>
                                     <strong>GSTIN:</strong> 123123123 • <strong>Email:</strong> support@bellateq.com • <strong>Tel:</strong> +91 12345 12345
@@ -464,12 +463,39 @@ export default function ExportSelector() {
                     </div>
                 </body>
                 </html>
-            `);
-            printWindow.document.close();
-            printWindow.focus();
-            setTimeout(() => {
-                printWindow.print();
-            }, 350);
+            `;
+
+            const printIframe = document.createElement("iframe");
+            printIframe.style.position = "fixed";
+            printIframe.style.right = "0";
+            printIframe.style.bottom = "0";
+            printIframe.style.width = "0";
+            printIframe.style.height = "0";
+            printIframe.style.border = "0";
+            printIframe.style.visibility = "hidden";
+            document.body.appendChild(printIframe);
+
+            const iframeDoc = printIframe.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(printContent);
+            iframeDoc.close();
+
+            const triggerPrint = () => {
+                try {
+                    printIframe.contentWindow.focus();
+                    printIframe.contentWindow.print();
+                } catch (printErr) {
+                    console.error("Print execution failed:", printErr);
+                } finally {
+                    setTimeout(() => {
+                        if (document.body.contains(printIframe)) {
+                            document.body.removeChild(printIframe);
+                        }
+                    }, 2000);
+                }
+            };
+
+            setTimeout(triggerPrint, 350);
             showNotification("Quotation generated!");
         } catch (err) {
             console.error("Error generating PDF:", err);
