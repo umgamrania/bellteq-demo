@@ -1,14 +1,5 @@
+import { BACKPLATES } from "../data/backplates";
 import styles from "./BackplateSelector.module.css";
-
-const BACKPLATES = Array.from({ length: 9 }, (_, index) => {
-    const id = index + 1;
-    return {
-        id,
-        name: `Backplate ${id}`,
-        src: `/backplates/${id}.png`,
-        alt: `Backplate design ${id}`,
-    };
-});
 
 export default function BackplateSelector({
     onSelect,
