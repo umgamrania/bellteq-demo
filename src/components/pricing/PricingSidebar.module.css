@@ -1,3 +1,7 @@
+.backdrop {
+    display: none;
+}
+
 .sidebar {
     height: 100%;
     width: 360px;
@@ -64,7 +68,7 @@
 }
 
 .closeBtn {
-    display: inline-flex;
+    display: none;
     align-items: center;
     justify-content: center;
     width: 28px;
@@ -505,24 +509,7 @@
 }
 
 .collapsedTrigger {
-    position: fixed;
-    left: 366px;
-    bottom: 16px;
-    right: auto;
-    top: auto;
-    background: #111827;
-    color: #ffffff;
-    border: none;
-    border-radius: 9999px;
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    z-index: 100;
+    display: none;
 }
 
 .triggerBadge {
@@ -533,25 +520,91 @@
 }
 
 @media (max-width: 1023px) {
-    .sidebar {
+    .backdrop {
+        display: block;
         position: fixed;
         inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(4px);
+        z-index: 490;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .backdropOpen {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: auto;
         width: 100%;
         min-width: 100%;
-        height: 100%;
-        height: 100dvh;
-        z-index: 1000;
+        height: 75vh;
+        height: 75dvh;
+        max-height: 75dvh;
         border-left: none;
-        box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
+        border-top: 1px solid var(--surface-accent);
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
+        z-index: 500;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, visibility 0.35s ease;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
+    }
+
+    .sidebarClosed {
+        transform: translateY(100%) !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+
+    .sidebarOpen {
+        transform: translateY(0) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+
+    .closeBtn {
+        display: inline-flex;
     }
 
     .collapsedTrigger {
-        left: 14px;
-        bottom: 74px;
-        top: auto;
+        display: flex;
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        bottom: auto;
         right: auto;
-        padding: 8px 14px;
+        background: #111827;
+        color: #ffffff;
+        border: none;
+        border-radius: 9999px;
+        padding: 7px 14px;
+        align-items: center;
+        gap: 8px;
         font-size: 12px;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+        font-weight: 600;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        z-index: 30;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    .triggerHidden {
+        transform: scale(0.85);
+        opacity: 0;
+        pointer-events: none;
     }
 }

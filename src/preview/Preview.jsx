@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useRef, useEffect } from "react";
 import { Plus, Minus } from "lucide-react";
 import { boardContext } from "../context/board";
 import { sidebarContext } from "../context/sidebar";
@@ -11,12 +11,61 @@ export default function Preview() {
     const { activeIdx } = useContext(sidebarContext) || {};
     const [zoom, setZoom] = useState(1);
 
+    const containerRef = useRef(null);
+    const boardRef = useRef(null);
+    const [containerSize, setContainerSize] = useState({ width: 800, height: 400 });
+    const [boardDimensions, setBoardDimensions] = useState({ width: 380, height: 160 });
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+        const updateContainerSize = () => {
+            if (containerRef.current) {
+                setContainerSize({
+                    width: containerRef.current.clientWidth,
+                    height: containerRef.current.clientHeight,
+                });
+            }
+        };
+        updateContainerSize();
+        const ro = new ResizeObserver(updateContainerSize);
+        ro.observe(containerRef.current);
+        return () => ro.disconnect();
+    }, []);
+
+    useEffect(() => {
+        if (!boardRef.current) return;
+        const updateBoardSize = () => {
+            if (boardRef.current) {
+                const w = boardRef.current.offsetWidth;
+                const h = boardRef.current.offsetHeight;
+                if (w > 0 && h > 0) {
+                    setBoardDimensions({ width: w, height: h });
+                }
+            }
+        };
+        updateBoardSize();
+        const ro = new ResizeObserver(updateBoardSize);
+        ro.observe(boardRef.current);
+        return () => ro.disconnect();
+    }, [backplate]);
+
     const rows = backplate?.rows ?? 0;
     const slotWidth = backplate?.slotWidth ?? 40;
     const slotsPerRow = rows > 0 ? Math.floor(backplate.slots / rows) : (backplate?.slots ?? 0);
     const holderWidth = `${slotsPerRow * slotWidth}px`;
 
     const hasMaterial = activeIdx >= 3 && Boolean(material?.src);
+
+    // Auto-fit scale to guarantee board fits on narrow screens with 100% aspect ratio preserved
+    const padding = 32;
+    const availableWidth = Math.max(100, containerSize.width - padding);
+    const availableHeight = Math.max(100, containerSize.height - padding);
+    const fitScale = Math.min(
+        1,
+        availableWidth / (boardDimensions.width || 380),
+        availableHeight / (boardDimensions.height || 160)
+    );
+    const effectiveScale = zoom * fitScale;
 
     const handleZoomIn = () => {
         setZoom((prev) => Math.min(2.5, Math.round((prev + 0.1) * 10) / 10));
@@ -31,16 +80,17 @@ export default function Preview() {
     };
 
     return (
-        <div className={styles.preview}>
+        <div ref={containerRef} className={styles.preview}>
             <div
                 className={styles.canvas}
                 style={{
-                    transform: `scale(${zoom})`,
+                    transform: `scale(${effectiveScale})`,
                     transformOrigin: "center center",
                 }}
             >
                 {backplate?.src && (
                     <div
+                        ref={boardRef}
                         id="switchboard-board-container"
                         key={backplate.id}
                         className={`${styles.backplateContainer} ${

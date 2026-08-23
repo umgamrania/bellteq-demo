@@ -112,11 +112,14 @@ export default function PricingSidebar() {
         }
     };
 
-    if (!isPricingSidebarOpen) {
-        return (
+    const currentGstSelectValue = isCustomGst ? "custom" : String(gstRate);
+
+    return (
+        <>
+            {/* Floating Trigger Button with transition */}
             <button
                 type="button"
-                className={styles.collapsedTrigger}
+                className={`${styles.collapsedTrigger} ${isPricingSidebarOpen ? styles.triggerHidden : ""}`}
                 onClick={() => setIsPricingSidebarOpen(true)}
                 title="Open Cost Breakdown Sidebar"
                 aria-label="Open Cost Breakdown"
@@ -124,13 +127,16 @@ export default function PricingSidebar() {
                 <Receipt size={18} />
                 <span className={styles.triggerBadge}>{formatPrice(breakdown.finalTotal)}</span>
             </button>
-        );
-    }
 
-    const currentGstSelectValue = isCustomGst ? "custom" : String(gstRate);
+            {/* Backdrop overlay for mobile */}
+            <div
+                className={`${styles.backdrop} ${isPricingSidebarOpen ? styles.backdropOpen : ""}`}
+                onClick={() => setIsPricingSidebarOpen(false)}
+                aria-hidden="true"
+            />
 
-    return (
-        <aside className={styles.sidebar}>
+            {/* Animated Pricing Sidebar */}
+            <aside className={`${styles.sidebar} ${isPricingSidebarOpen ? styles.sidebarOpen : styles.sidebarClosed}`}>
             {/* Sidebar Top Header */}
             <div className={styles.header}>
                 <div className={styles.headerTitle}>
@@ -437,5 +443,6 @@ export default function PricingSidebar() {
                 </div>
             </div>
         </aside>
+        </>
     );
 }
