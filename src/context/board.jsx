@@ -106,6 +106,39 @@ export default function BoardContext({ children }) {
         setComponentIds(prev => prev.map(rowIds => rowIds.filter(id => id !== targetId)));
     }
 
+    function findNextEmptySlot(comps, currentSlot) {
+        const allSlots = [];
+        for (const row of componentIds) {
+            for (const compId of row) {
+                const comp = comps[compId];
+                if (comp && Array.isArray(comp.iconImages) && comp.iconImages.length > 0) {
+                    for (let i = 0; i < comp.iconImages.length; i++) {
+                        allSlots.push({ componentId: compId, idx: i });
+                    }
+                }
+            }
+        }
+
+        if (allSlots.length === 0) {
+            return {};
+        }
+
+        const currIndex = allSlots.findIndex(
+            (s) => s.componentId === currentSlot?.componentId && s.idx === currentSlot?.idx
+        );
+
+        for (let step = 1; step <= allSlots.length; step++) {
+            const checkIndex = (currIndex === -1 ? step - 1 : currIndex + step) % allSlots.length;
+            const candidate = allSlots[checkIndex];
+            const comp = comps[candidate.componentId];
+            if (comp && !comp.iconImages?.[candidate.idx]) {
+                return candidate;
+            }
+        }
+
+        return {};
+    }
+
     function setIcon(icon, slot) {
         const targetSlot = slot || activeSlot;
         if (!targetSlot || !targetSlot.componentId || targetSlot.idx === undefined || targetSlot.idx === null) {
@@ -115,21 +148,23 @@ export default function BoardContext({ children }) {
         const { componentId, idx } = targetSlot;
         const imageSrc = typeof icon === "object" && icon !== null ? icon.src : icon;
 
-        setComponents(prev => {
-            const targetComponent = prev[componentId];
-            if (!targetComponent) return prev;
+        const targetComponent = components[componentId];
+        if (!targetComponent) return;
 
-            const iconImages = [...(targetComponent.iconImages || [])];
-            iconImages[idx] = imageSrc;
+        const iconImages = [...(targetComponent.iconImages || [])];
+        iconImages[idx] = imageSrc;
 
-            return {
-                ...prev,
-                [componentId]: {
-                    ...targetComponent,
-                    iconImages
-                }
-            };
-        });
+        const nextComponents = {
+            ...components,
+            [componentId]: {
+                ...targetComponent,
+                iconImages
+            }
+        };
+
+        setComponents(nextComponents);
+        const nextSlot = findNextEmptySlot(nextComponents, targetSlot);
+        setActiveSlot(nextSlot);
     }
 
     /** Convenience helper: look up a component by its instance_id */
