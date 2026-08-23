@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+    --text-primary: rgb(40 40 40);
+    --text-secondary: rgb(100 100 100);
+
+    --surface-primary: rgb(240 240 240);
+    --on-surface-primary: rgb(30 30 30);
+    --surface-accent: rgb(210 210 210);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Geist, system-ui, sans-serif;
+}
+
+.app {
+    height: 100vh;
+    color: var(--text-primary);
+}
