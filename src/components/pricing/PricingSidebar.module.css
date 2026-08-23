@@ -484,37 +484,6 @@
     letter-spacing: -0.02em;
 }
 
-.footerActions {
-    display: flex;
-    width: 100%;
-}
-
-.primaryPdfBtn {
-    width: 100%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 16px;
-    border-radius: 8px;
-    border: none;
-    background: #111827;
-    font-size: 13px;
-    font-weight: 600;
-    color: #ffffff;
-    cursor: pointer;
-    transition: background 0.15s ease, opacity 0.15s ease;
-}
-
-.primaryPdfBtn:hover:not(:disabled) {
-    background: #000000;
-}
-
-.primaryPdfBtn:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-}
-
 .collapsedTrigger {
     position: fixed;
     right: 16px;

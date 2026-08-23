@@ -6,7 +6,6 @@ import {
     Cpu,
     Palette,
     IndianRupee,
-    FileText,
     Percent,
     Tag
 } from "lucide-react";
@@ -322,7 +321,7 @@ export default function PricingSidebar() {
                                 <option value="15%">15% Off</option>
                                 <option value="20%">20% Off</option>
                                 <option value="custom_percent">Custom %</option>
-                                <option value="custom_flat">Custom Amount</option>
+                                <option value="custom_flat">Custom Flat (₹)</option>
                             </select>
 
                             {(discountMode === "custom_percent" || discountMode === "custom_flat") && (
@@ -334,6 +333,7 @@ export default function PricingSidebar() {
                                         step={discountMode === "custom_percent" ? "1" : "50"}
                                         value={customDiscountInput}
                                         onChange={handleCustomDiscountInputChange}
+                                        placeholder={discountMode === "custom_percent" ? "%" : "₹"}
                                         className={styles.inlineNumberInput}
                                     />
                                     <span className={styles.inputSuffix}>
@@ -424,18 +424,6 @@ export default function PricingSidebar() {
                             {formatPrice(breakdown.finalTotal)}
                         </span>
                     </div>
-                </div>
-
-                <div className={styles.footerActions}>
-                    <button
-                        type="button"
-                        className={styles.primaryPdfBtn}
-                        disabled={!hasAnyItem}
-                        title="Generate PDF"
-                    >
-                        <FileText size={15} />
-                        Generate PDF
-                    </button>
                 </div>
             </div>
         </aside>

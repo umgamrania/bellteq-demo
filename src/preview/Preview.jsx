@@ -16,7 +16,7 @@ export default function Preview() {
     const slotsPerRow = rows > 0 ? Math.floor(backplate.slots / rows) : (backplate?.slots ?? 0);
     const holderWidth = `${slotsPerRow * slotWidth}px`;
 
-    const hasMaterial = activeIdx === 3 && Boolean(material?.src);
+    const hasMaterial = activeIdx >= 3 && Boolean(material?.src);
 
     const handleZoomIn = () => {
         setZoom((prev) => Math.min(2.5, Math.round((prev + 0.1) * 10) / 10));
@@ -41,6 +41,7 @@ export default function Preview() {
             >
                 {backplate?.src && (
                     <div
+                        id="switchboard-board-container"
                         key={backplate.id}
                         className={`${styles.backplateContainer} ${
                             backplate.rows === 2 ? styles.twoRow : ""
