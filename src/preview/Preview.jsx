@@ -13,6 +13,7 @@ export default function Preview() {
         <div className={styles.preview}>
             {backplate?.src && (
                 <div
+                    key={backplate.id}
                     className={`${styles.backplateContainer} ${
                         backplate.rows === 2 ? styles.twoRow : ""
                     } ${backplate.rows === 3 ? styles.threeRow : ""}`.trim()}

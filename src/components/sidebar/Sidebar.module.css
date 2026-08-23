@@ -20,6 +20,7 @@
 
 .content {
     flex: 1;
+    overflow-x: hidden;
     overflow-y: auto;
     scrollbar-gutter: stable;
     scrollbar-width: thin;
@@ -45,24 +46,49 @@
     background: var(--text-secondary);
 }
 
-.fadeContent {
+.slideContent {
     height: 100%;
-    animation: fadeIn 0.22s ease-out forwards;
 }
 
-@keyframes fadeIn {
-    from {
+.slideNext {
+    animation: slideNext 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.slideBack {
+    animation: slideBack 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes slideNext {
+    0% {
         opacity: 0;
-        transform: translateY(4px);
+        transform: translateX(12px);
     }
-    to {
+    60% {
+        opacity: 0.85;
+    }
+    100% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideBack {
+    0% {
+        opacity: 0;
+        transform: translateX(-12px);
+    }
+    60% {
+        opacity: 0.85;
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .fadeContent {
+    .slideNext,
+    .slideBack {
         animation: none;
     }
 }

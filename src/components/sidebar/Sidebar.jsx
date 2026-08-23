@@ -9,6 +9,7 @@ export default function Sidebar({
 }) {
     const childArray = Children.toArray(children);
     const [activeIdx, setActiveIdx] = useState(0);
+    const [direction, setDirection] = useState("next");
     const contentRef = useRef(null);
 
     const hasChildren = childArray.length > 0;
@@ -24,10 +25,12 @@ export default function Sidebar({
     }, [activeIdx]);
 
     const handleBack = () => {
+        setDirection("back");
         setActiveIdx((prev) => Math.max(0, prev - 1));
     };
 
     const handleNext = () => {
+        setDirection("next");
         setActiveIdx((prev) => Math.min(childArray.length - 1, prev + 1));
     };
 
@@ -38,7 +41,12 @@ export default function Sidebar({
             </div>
             <div ref={contentRef} className={styles.content}>
                 {hasChildren ? (
-                    <div key={activeIdx} className={styles.fadeContent}>
+                    <div
+                        key={activeIdx}
+                        className={`${styles.slideContent} ${
+                            direction === "next" ? styles.slideNext : styles.slideBack
+                        }`}
+                    >
                         {childArray[activeIdx]}
                     </div>
                 ) : (

@@ -15,6 +15,25 @@
     align-items: center;
     justify-content: center;
     line-height: 0;
+    animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.12));
+}
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.95) translateY(6px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .backplateContainer {
+        animation: none;
+    }
 }
 
 .backplateContainer img {
