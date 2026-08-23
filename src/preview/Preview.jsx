@@ -1,9 +1,11 @@
 import { useContext } from "react";
 import { boardContext } from "../context/board";
 import styles from "./Preview.module.css";
+import SwitchComponent from "./SwitchComponent";
+import OtherComponent from "./OtherComponent";
 
 export default function Preview() {
-    const { backplate } = useContext(boardContext);
+    const { backplate, componentRows } = useContext(boardContext);
     const rows = backplate?.rows ?? 0;
     const slotWidth = backplate?.slotWidth ?? 40;
     const slotsPerRow = rows > 0 ? Math.floor(backplate.slots / rows) : (backplate?.slots ?? 0);
@@ -35,12 +37,10 @@ export default function Preview() {
                                 }}
                                 data-row-index={rowIndex}
                             >
-                                {Array.from({ length: slotsPerRow }, (_, slotIndex) => (
-                                    <div
-                                        key={slotIndex}
-                                        className={styles.slot}
-                                        data-slot-index={rowIndex * slotsPerRow + slotIndex}
-                                    />
+                                {componentRows[rowIndex]?.map((component, idx) => (
+                                    component.category == "switches"
+                                    ? <SwitchComponent key={`${rowIndex}.${idx}`} component={component} />
+                                    : <OtherComponent key={`${rowIndex}.${idx}`} component={component} />
                                 ))}
                             </div>
                         ))}

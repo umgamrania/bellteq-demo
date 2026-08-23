@@ -1,4 +1,6 @@
+import { useContext } from "react";
 import styles from "./ComponentSelector.module.css";
+import { boardContext } from "../context/board";
 
 const COMPONENT_SECTIONS = [
     {
@@ -19,7 +21,7 @@ const COMPONENT_SECTIONS = [
         title: "Plugs",
         items: [
             { id: "plug-6a", name: "6A Plug", src: "/components/6A Plug.png", category: "plugs", slots: 2 },
-            { id: "plug-6a-2pin", name: "6A 2-Pin Plug", src: "/components/6A 2pin Plug.png", category: "plugs", slots: 2 },
+            { id: "plug-6a-2pin", name: "6A 2-Pin Plug", src: "/components/6A 2pin Plug.png", category: "plugs", slots: 1 },
             { id: "plug-13a", name: "13A Plug", src: "/components/13A Plug.png", category: "plugs", slots: 2 },
             { id: "plug-16a", name: "16A Plug", src: "/components/16A Plug.png", category: "plugs", slots: 2 },
         ],
@@ -49,9 +51,10 @@ export default function ComponentSelector({
     onSelect,
     sections = COMPONENT_SECTIONS,
 }) {
+    const { addComponent } = useContext(boardContext);
+
     const handleSelect = (component) => {
-        // Will be wired to sidebar context
-        onSelect?.(component);
+        addComponent(component);
     };
 
     return (
