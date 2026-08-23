@@ -1,6 +1,7 @@
 .sidebar {
     height: 100%;
     width: 350px;
+    min-width: 350px;
     display: flex;
     flex-direction: column;
     border-right: 1px solid var(--surface-accent);

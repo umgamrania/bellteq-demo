@@ -1,13 +1,16 @@
+import { useContext } from "react";
 import { BACKPLATES } from "../data/backplates";
 import styles from "./BackplateSelector.module.css";
+import { boardContext } from "../context/board";
 
 export default function BackplateSelector({
     onSelect,
     backplates = BACKPLATES,
 }) {
+    const { selectBackplate } = useContext(boardContext);
+
     const handleSelect = (backplate) => {
-        // Will be wired to sidebar context
-        onSelect?.(backplate);
+        selectBackplate(backplate);
     };
 
     return (

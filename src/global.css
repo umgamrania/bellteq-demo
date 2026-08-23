@@ -16,7 +16,13 @@
     font-family: Geist, system-ui, sans-serif;
 }
 
+img, picture, svg {
+    display: block;
+    max-width: 100%;
+}
+
 .app {
     height: 100vh;
+    display: flex;
     color: var(--text-primary);
 }
