@@ -7,7 +7,8 @@ import {
     Palette,
     IndianRupee,
     Percent,
-    Tag
+    Tag,
+    X,
 } from "lucide-react";
 import { boardContext } from "../../context/board";
 import { pricingContext } from "../../context/pricing";
@@ -146,6 +147,15 @@ export default function PricingSidebar() {
                     >
                         <SlidersHorizontal size={15} />
                         <span>Pricing</span>
+                    </button>
+                    <button
+                        type="button"
+                        className={styles.closeBtn}
+                        onClick={() => setIsPricingSidebarOpen(false)}
+                        title="Close Breakdown"
+                        aria-label="Close Breakdown"
+                    >
+                        <X size={18} />
                     </button>
                 </div>
             </div>

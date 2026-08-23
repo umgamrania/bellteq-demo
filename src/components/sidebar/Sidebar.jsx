@@ -1,5 +1,5 @@
-import { useRef, useEffect, useContext, Children } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useRef, useEffect, useContext, useState, Children } from "react";
+import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 import Button from "../button/Button";
 import styles from "./Sidebar.module.css";
 import { sidebarContext } from "../../context/sidebar";
@@ -14,6 +14,7 @@ export default function Sidebar({
     const { setMaterial, isStageComplete } = useContext(boardContext) || {};
     const activeIdx = context ? context.activeIdx : 0;
     const setActiveIdx = context ? context.setActiveIdx : () => {};
+    const [isMobileExpanded, setIsMobileExpanded] = useState(true);
 
     // Track direction based on actual index change
     const prevActiveIdxRef = useRef(activeIdx);
@@ -57,10 +58,27 @@ export default function Sidebar({
     };
 
     return (
-        <nav className={styles.sidebar}>
-            <div className={styles.heading}>
-                <h2>{currentTitle}</h2>
+        <nav className={`${styles.sidebar} ${!isMobileExpanded ? styles.mobileCollapsed : ""}`}>
+            <div className={styles.heading} onClick={() => setIsMobileExpanded((prev) => !prev)}>
+                <div className={styles.headingContent}>
+                    <span className={styles.stepBadge}>
+                        Step {activeIdx + 1} of {childArray.length}
+                    </span>
+                    <h2>{currentTitle}</h2>
+                </div>
+                <button
+                    type="button"
+                    className={styles.mobileToggleBtn}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsMobileExpanded((prev) => !prev);
+                    }}
+                    aria-label={isMobileExpanded ? "Collapse panel" : "Expand panel"}
+                >
+                    {isMobileExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
+                </button>
             </div>
+
             <div ref={contentRef} className={styles.content}>
                 {hasChildren ? (
                     <div
@@ -75,6 +93,7 @@ export default function Sidebar({
                     <span className={styles.nothing}>There's nothing here!</span>
                 )}
             </div>
+
             <div className={styles.controls}>
                 <Button 
                     variant="secondary"

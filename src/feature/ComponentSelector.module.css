@@ -131,3 +131,20 @@
     border-radius: 4px;
     line-height: 1.3;
 }
+
+@media (max-width: 768px) {
+    .container {
+        padding: 12px;
+        gap: 16px;
+    }
+
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        grid-auto-rows: 130px;
+        gap: 8px;
+    }
+
+    .imageWrapper {
+        max-height: 65px;
+    }
+}

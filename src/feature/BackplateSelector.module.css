@@ -100,3 +100,20 @@
     border-radius: 4px;
     line-height: 1.3;
 }
+
+@media (max-width: 768px) {
+    .container {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        grid-auto-rows: 135px;
+        gap: 8px;
+    }
+
+    .card {
+        padding: 8px 6px 6px;
+    }
+}

@@ -371,3 +371,66 @@
 .saveBtn:hover {
     background: #000000;
 }
+
+@media (max-width: 768px) {
+    .modal {
+        width: 95%;
+        max-width: 100%;
+        height: 92vh;
+        height: 92dvh;
+        border-radius: 12px;
+    }
+
+    .header {
+        padding: 12px 14px;
+    }
+
+    .headerTitle h2 {
+        font-size: 15px;
+    }
+
+    .toolbar {
+        padding: 8px 12px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .tabsList {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+
+    .searchBox {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .body {
+        padding: 10px 12px;
+    }
+
+    .itemRow {
+        gap: 10px;
+        padding: 8px 10px;
+    }
+
+    .itemThumb {
+        width: 38px;
+        height: 38px;
+    }
+
+    .priceInputWrapper {
+        width: 90px;
+        padding: 4px 6px;
+    }
+
+    .footer {
+        padding: 10px 12px;
+    }
+
+    .savedBadge {
+        display: none;
+    }
+}

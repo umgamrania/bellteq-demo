@@ -23,8 +23,16 @@ img, picture, svg {
 
 .app {
     height: 100vh;
+    height: 100dvh;
     width: 100vw;
     display: flex;
     overflow: hidden;
     color: var(--text-primary);
+    position: relative;
+}
+
+@media (max-width: 1023px) {
+    .app {
+        flex-direction: column;
+    }
 }

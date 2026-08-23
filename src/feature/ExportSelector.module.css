@@ -173,3 +173,23 @@
     to { transform: rotate(360deg); }
 }
 
+@media (max-width: 768px) {
+    .container {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .summaryCard {
+        padding: 10px 12px;
+    }
+
+    .actionCard {
+        padding: 10px 12px;
+    }
+
+    .actionIconWrapper {
+        width: 34px;
+        height: 34px;
+    }
+}
+
