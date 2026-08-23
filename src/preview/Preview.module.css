@@ -204,15 +204,19 @@
     width: 28px;
     overflow: hidden;
     border-radius: 8px;
-    border: 2px solid #444;
+    border: 2px solid transparent;
     transition: 0.2s ease;
+}
+
+.iconHolder.showBorder {
+    border: 2px solid #444;
 
     &:hover {
         cursor: pointer;
     }
 }
 
-.iconHolder.active {
+.iconHolder.showBorder.active {
     border: 2px dashed #ccc;
 }
 

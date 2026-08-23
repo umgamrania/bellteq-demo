@@ -108,9 +108,10 @@ export default function BoardContext({ children }) {
 
     function findNextEmptySlot(comps, currentSlot) {
         const allSlots = [];
+        const sourceComps = comps || components;
         for (const row of componentIds) {
             for (const compId of row) {
-                const comp = comps[compId];
+                const comp = sourceComps[compId];
                 if (comp && Array.isArray(comp.iconImages) && comp.iconImages.length > 0) {
                     for (let i = 0; i < comp.iconImages.length; i++) {
                         allSlots.push({ componentId: compId, idx: i });
@@ -123,14 +124,14 @@ export default function BoardContext({ children }) {
             return {};
         }
 
-        const currIndex = allSlots.findIndex(
-            (s) => s.componentId === currentSlot?.componentId && s.idx === currentSlot?.idx
-        );
+        const currIndex = currentSlot?.componentId
+            ? allSlots.findIndex((s) => s.componentId === currentSlot.componentId && s.idx === currentSlot.idx)
+            : -1;
 
         for (let step = 1; step <= allSlots.length; step++) {
             const checkIndex = (currIndex === -1 ? step - 1 : currIndex + step) % allSlots.length;
             const candidate = allSlots[checkIndex];
-            const comp = comps[candidate.componentId];
+            const comp = sourceComps[candidate.componentId];
             if (comp && !comp.iconImages?.[candidate.idx]) {
                 return candidate;
             }
@@ -177,7 +178,7 @@ export default function BoardContext({ children }) {
             activeSlot, setActiveSlot,
             componentIds, components, 
             getComponent, addComponent, removeComponent,
-            setIcon }}>
+            setIcon, findNextEmptySlot }}>
             {children}
         </boardContext.Provider>
     );

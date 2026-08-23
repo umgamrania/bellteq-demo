@@ -1,4 +1,4 @@
-import { useState, useMemo, useContext } from "react";
+import { useState, useMemo, useContext, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { ICONS } from "../data/icons";
 import styles from "./IconSelector.module.css";
@@ -8,8 +8,17 @@ export default function IconSelector({
     onSelect,
     icons = ICONS,
 }) {
-    const { setIcon, activeSlot, getSlotType } = useContext(boardContext);
+    const { setIcon, activeSlot, setActiveSlot, getSlotType, components, findNextEmptySlot } = useContext(boardContext);
     const [searchQuery, setSearchQuery] = useState("");
+
+    useEffect(() => {
+        if (findNextEmptySlot) {
+            const firstEmpty = findNextEmptySlot(components, null);
+            if (firstEmpty && firstEmpty.componentId) {
+                setActiveSlot(firstEmpty);
+            }
+        }
+    }, []);
 
     const slotType = useMemo(() => {
         return getSlotType ? getSlotType(activeSlot) : "NORMAL";

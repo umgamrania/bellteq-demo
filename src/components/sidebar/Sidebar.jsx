@@ -1,14 +1,19 @@
-import { useState, useRef, useEffect, Children } from "react";
+import { useState, useRef, useEffect, useContext, Children } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Button from "../button/Button";
 import styles from "./Sidebar.module.css";
+import { sidebarContext } from "../../context/sidebar";
 
 export default function Sidebar({
     children,
     title = "Choose a backplate",
 }) {
     const childArray = Children.toArray(children);
-    const [activeIdx, setActiveIdx] = useState(0);
+    const context = useContext(sidebarContext);
+    const [localActiveIdx, setLocalActiveIdx] = useState(0);
+    const activeIdx = context ? context.activeIdx : localActiveIdx;
+    const setActiveIdx = context ? context.setActiveIdx : setLocalActiveIdx;
+
     const [direction, setDirection] = useState("next");
     const contentRef = useRef(null);
 

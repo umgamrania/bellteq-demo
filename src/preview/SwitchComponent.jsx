@@ -2,9 +2,12 @@ import { X } from "lucide-react";
 import styles from "./Preview.module.css";
 import { useContext } from "react";
 import { boardContext } from "../context/board";
+import { sidebarContext } from "../context/sidebar";
 
 export default function SwitchComponent({ component }) {
     const { removeComponent } = useContext(boardContext);
+    const { activeIdx } = useContext(sidebarContext) || {};
+    const isComponentSection = activeIdx === 1;
 
     return <>
         <div 
@@ -14,7 +17,9 @@ export default function SwitchComponent({ component }) {
             <div className={styles.iconsContainer} data-varient={component.id}>
                 <IconOverlay component={component} />
             </div>
-            <button className={styles.removeBtn} onClick={() => removeComponent(component)}><X /></button>
+            {isComponentSection && (
+                <button className={styles.removeBtn} onClick={() => removeComponent(component)}><X /></button>
+            )}
         </div>
     </>;
 }
@@ -101,13 +106,16 @@ function IconOverlay({ component }) {
 
 function IconSlot({component, idx}) {
     const { activeSlot, setActiveSlot } = useContext(boardContext);
+    const { activeIdx } = useContext(sidebarContext) || {};
+    const showBorder = activeIdx === 1 || activeIdx === 2;
+    const isIconSection = activeIdx === 2;
 
     const image = component.iconImages[idx];
     const isActive = (activeSlot.componentId == component.instance_id) && (activeSlot.idx == idx);
 
     return <div
-        onClick={() => setActiveSlot({ componentId: component.instance_id, idx: idx })}
-        className={`${styles.iconHolder} ${isActive ? styles.active : ""}`}
+        onClick={() => isIconSection && setActiveSlot({ componentId: component.instance_id, idx: idx })}
+        className={`${styles.iconHolder} ${showBorder ? styles.showBorder : ""} ${isActive && isIconSection ? styles.active : ""}`}
     >
         {image && <img src={image} alt="" />}
     </div>
