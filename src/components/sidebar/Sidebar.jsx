@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useContext, Children } from "react";
+import { useRef, useEffect, useContext, Children } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Button from "../button/Button";
 import styles from "./Sidebar.module.css";
@@ -12,11 +12,21 @@ export default function Sidebar({
     const childArray = Children.toArray(children);
     const context = useContext(sidebarContext);
     const { setMaterial, isStageComplete } = useContext(boardContext) || {};
-    const [localActiveIdx, setLocalActiveIdx] = useState(0);
-    const activeIdx = context ? context.activeIdx : localActiveIdx;
-    const setActiveIdx = context ? context.setActiveIdx : setLocalActiveIdx;
+    const activeIdx = context ? context.activeIdx : 0;
+    const setActiveIdx = context ? context.setActiveIdx : () => {};
 
-    const [direction, setDirection] = useState("next");
+    // Track direction based on actual index change
+    const prevActiveIdxRef = useRef(activeIdx);
+    const directionRef = useRef("next");
+
+    if (activeIdx > prevActiveIdxRef.current) {
+        directionRef.current = "next";
+    } else if (activeIdx < prevActiveIdxRef.current) {
+        directionRef.current = "back";
+    }
+    prevActiveIdxRef.current = activeIdx;
+
+    const direction = directionRef.current;
     const contentRef = useRef(null);
 
     const hasChildren = childArray.length > 0;
@@ -36,13 +46,13 @@ export default function Sidebar({
         if (activeIdx === childArray.length - 1) {
             setMaterial?.(null);
         }
-        setDirection("back");
+        directionRef.current = "back";
         setActiveIdx((prev) => Math.max(0, prev - 1));
     };
 
     const handleNext = () => {
         if (!isCurrentStageComplete) return;
-        setDirection("next");
+        directionRef.current = "next";
         setActiveIdx((prev) => Math.min(childArray.length - 1, prev + 1));
     };
 

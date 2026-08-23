@@ -3,6 +3,7 @@ import { BACKPLATES } from "../data/backplates";
 import styles from "./BackplateSelector.module.css";
 import { boardContext } from "../context/board";
 import { sidebarContext } from "../context/sidebar";
+import { pricingContext } from "../context/pricing";
 
 export default function BackplateSelector({
     onSelect,
@@ -10,6 +11,7 @@ export default function BackplateSelector({
 }) {
     const { backplate: selectedBackplate, selectBackplate } = useContext(boardContext);
     const { setActiveIdx } = useContext(sidebarContext) || {};
+    const { getBackplatePrice, formatPrice } = useContext(pricingContext) || {};
 
     const handleSelect = (backplate) => {
         selectBackplate(backplate);
@@ -22,6 +24,7 @@ export default function BackplateSelector({
             <div className={styles.grid}>
                 {backplates.map((backplate) => {
                     const isSelected = selectedBackplate?.id === backplate.id;
+                    const price = getBackplatePrice ? getBackplatePrice(backplate.id) : 0;
                     return (
                         <button
                             key={backplate.id}
@@ -38,7 +41,12 @@ export default function BackplateSelector({
                                     loading="lazy"
                                 />
                             </div>
-                            <span className={styles.label}>{backplate.name}</span>
+                            <div className={styles.cardFooter}>
+                                <span className={styles.label}>{backplate.name}</span>
+                                {formatPrice && (
+                                    <span className={styles.priceTag}>{formatPrice(price)}</span>
+                                )}
+                            </div>
                         </button>
                     );
                 })}

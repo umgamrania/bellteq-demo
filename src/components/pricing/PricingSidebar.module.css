@@ -1,0 +1,542 @@
+.sidebar {
+    height: 100%;
+    width: 360px;
+    min-width: 360px;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid var(--surface-accent);
+    background: var(--surface-primary);
+    position: relative;
+    user-select: none;
+    z-index: 10;
+}
+
+.header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--surface-accent);
+    background: var(--surface-primary);
+}
+
+.headerTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.headerIcon {
+    color: #111827;
+}
+
+.headerTitle h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.configBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--surface-accent);
+    background: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.configBtn:hover {
+    background: #f3f4f6;
+    color: #111827;
+    border-color: #d1d5db;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface-accent) transparent;
+}
+
+.content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.content::-webkit-scrollbar-thumb {
+    background: var(--surface-accent);
+    border-radius: 9999px;
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 16px;
+    margin: auto 0;
+    gap: 10px;
+}
+
+.emptyIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4b5563;
+    margin-bottom: 4px;
+}
+
+.emptyState h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.configureShortcut {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+    color: #111827;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.configureShortcut:hover {
+    background: #f3f4f6;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sectionHeading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0 2px;
+}
+
+.sectionTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sectionPrice {
+    font-size: 12px;
+    color: #111827;
+    font-weight: 600;
+}
+
+.counterBadge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    background: #e5e7eb;
+    color: #374151;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.itemCard {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.itemCard:hover {
+    border-color: #cbd5e1;
+}
+
+.thumbWrapper {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.thumbWrapper img {
+    max-width: 85%;
+    max-height: 85%;
+    object-fit: contain;
+}
+
+.swatchWrapper {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid #e5e7eb;
+}
+
+.swatchWrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.itemMeta {
+    flex: 1;
+    min-width: 0;
+}
+
+.nameRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.itemName {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.qtyBadge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #2563eb;
+    background: #eff6ff;
+    padding: 1px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.itemDetails {
+    display: block;
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.itemCostCol {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.itemCostBold {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.componentList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.subtotalRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 4px 2px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.subtotalVal {
+    font-weight: 600;
+    color: #374151;
+}
+
+.emptyNotice {
+    padding: 12px;
+    text-align: center;
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #9ca3af;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.footer {
+    padding: 12px 16px;
+    background: var(--surface-primary);
+    border-top: 1px solid var(--surface-accent);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Discount & GST Controls Box */
+.taxControlsCard {
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.controlRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.controlLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.controlIcon {
+    color: #6b7280;
+}
+
+.controlInputsGroup {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.selectInput {
+    height: 28px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    font-size: 12px;
+    font-weight: 500;
+    color: #111827;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.selectInput:focus {
+    border-color: #111827;
+    background: #ffffff;
+}
+
+.inlineNumberInputWrapper {
+    display: flex;
+    align-items: center;
+    height: 28px;
+    width: 68px;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 0 6px;
+    gap: 2px;
+    transition: border-color 0.15s ease;
+}
+
+.inlineNumberInputWrapper:focus-within {
+    border-color: #111827;
+}
+
+.inlineNumberInput {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    color: #111827;
+    outline: none;
+    text-align: right;
+}
+
+.inlineNumberInput::-webkit-outer-spin-button,
+.inlineNumberInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.inputSuffix {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+/* Bill Summary Breakdown Card */
+.summaryCard {
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+}
+
+.summaryLabel {
+    color: #6b7280;
+}
+
+.summaryValue {
+    font-weight: 500;
+    color: #111827;
+}
+
+.discountRow .summaryLabel {
+    color: #16a34a;
+    font-weight: 500;
+}
+
+.discountValue {
+    font-weight: 600;
+    color: #16a34a;
+}
+
+.divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 4px 0;
+}
+
+.totalRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 2px;
+}
+
+.totalLabelGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.totalLabel {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.totalSub {
+    font-size: 10px;
+    color: #9ca3af;
+}
+
+.totalAmount {
+    font-size: 20px;
+    font-weight: 800;
+    color: #111827;
+    letter-spacing: -0.02em;
+}
+
+.footerActions {
+    display: flex;
+    width: 100%;
+}
+
+.primaryPdfBtn {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    background: #111827;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.primaryPdfBtn:hover:not(:disabled) {
+    background: #000000;
+}
+
+.primaryPdfBtn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.collapsedTrigger {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    background: #111827;
+    color: #ffffff;
+    border: none;
+    border-radius: 9999px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 100;
+}
+
+.triggerBadge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 12px;
+}
