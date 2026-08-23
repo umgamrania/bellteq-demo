@@ -53,8 +53,13 @@ export default function PricingProvider({ children }) {
 
     // Modal state for price configuration
     const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
-    // Responsive sidebar toggle (visible by default)
-    const [isPricingSidebarOpen, setIsPricingSidebarOpen] = useState(true);
+    // Responsive sidebar toggle: open by default on desktop (>= 1024px), closed on mobile
+    const [isPricingSidebarOpen, setIsPricingSidebarOpen] = useState(() => {
+        if (typeof window !== "undefined") {
+            return window.innerWidth >= 1024;
+        }
+        return false;
+    });
 
     // Persist prices to localStorage
     useEffect(() => {
