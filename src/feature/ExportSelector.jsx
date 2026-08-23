@@ -211,56 +211,84 @@ export default function ExportSelector() {
                         .header-table {
                             width: 100%;
                             border-collapse: collapse;
-                            margin-bottom: 10px;
+                            margin-bottom: 0;
+                        }
+                        .header-left {
+                            vertical-align: top;
+                            text-align: left;
+                            width: 58%;
                         }
                         .brand-logo-img {
-                            height: 50px;
+                            height: 46px;
                             width: auto;
-                            max-width: 260px;
+                            max-width: 220px;
                             object-fit: contain;
                             filter: brightness(0);
-                            margin-bottom: 6px;
+                            margin-bottom: 4px;
                             display: block;
                         }
-                        .company-address {
+                        .company-subname {
                             font-size: 10.5px;
-                            color: #6b7280;
-                            line-height: 1.35;
-                            margin-top: 2px;
+                            font-weight: 800;
+                            letter-spacing: 0.08em;
+                            color: #1e293b;
+                            margin-bottom: 2px;
+                            text-transform: uppercase;
                         }
-                        .doc-badge {
+                        .company-details {
+                            font-size: 10px;
+                            color: #64748b;
+                            line-height: 1.45;
+                        }
+                        .company-details strong {
+                            color: #334155;
+                        }
+                        .header-right {
+                            vertical-align: top;
                             text-align: right;
-                            vertical-align: middle;
+                            width: 42%;
                         }
                         .doc-title {
-                            font-size: 20px;
-                            font-weight: 800;
-                            color: #111827;
-                            letter-spacing: 0.04em;
+                            font-size: 22px;
+                            font-weight: 900;
+                            color: #0f172a;
+                            letter-spacing: 0.06em;
                             text-transform: uppercase;
+                            line-height: 1.1;
                         }
-
-                        .meta-ribbon {
-                            background: #f9fafb;
-                            border: 1px solid #e5e7eb;
-                            border-radius: 6px;
-                            padding: 7px 14px;
-                            margin-bottom: 36px;
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                        }
-                        .meta-label {
-                            font-size: 10px;
+                        .doc-subtitle {
+                            font-size: 9px;
                             font-weight: 700;
-                            color: #6b7280;
+                            letter-spacing: 0.1em;
+                            color: #94a3b8;
                             text-transform: uppercase;
-                            letter-spacing: 0.05em;
+                            margin-top: 2px;
+                            margin-bottom: 6px;
                         }
-                        .meta-value {
-                            font-size: 11.5px;
+                        .meta-grid-table {
+                            margin-left: auto;
+                            border-collapse: collapse;
+                            font-size: 11px;
+                        }
+                        .meta-grid-table td {
+                            padding: 2px 0 2px 8px;
+                        }
+                        .meta-th {
+                            text-align: right;
+                            color: #64748b;
                             font-weight: 600;
-                            color: #111827;
+                            font-size: 10px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.04em;
+                        }
+                        .meta-td {
+                            text-align: right;
+                            color: #0f172a;
+                        }
+                        .header-divider {
+                            height: 1.5px;
+                            background: linear-gradient(90deg, #0f172a 0%, #cbd5e1 100%);
+                            margin: 10px 0 14px 0;
                         }
 
                         /* Visual Preview Section */
@@ -385,27 +413,35 @@ export default function ExportSelector() {
                     </style>
                 </head>
                 <body>
-                    <!-- Company & Quote Header -->
+                    <!-- Professional Quotation / Bill Header -->
                     <table class="header-table">
                         <tr>
-                            <td>
+                            <td class="header-left">
                                 <img src="${new URL('logo.webp', window.location.href).href}" alt="Bellateq" class="brand-logo-img" />
-                                <div class="company-address">
-                                    Company Address<br/>
-                                    <strong>GSTIN:</strong> 123123123 • <strong>Email:</strong> support@bellateq.com • <strong>Tel:</strong> +91 12345 12345
+                                <div class="company-subname">BELLATEQ SMART LIVING</div>
+                                <div class="company-details">
+                                    <strong>GSTIN:</strong> 27AAAAA0000A1Z5 &bull; <strong>Email:</strong> support@bellateq.com<br/>
+                                    <strong>Phone:</strong> +91 98765 43210 &bull; <strong>Web:</strong> www.bellateq.com
                                 </div>
                             </td>
-                            <td class="doc-badge">
-                                <div class="doc-title">BOARD QUOTATION</div>
+                            <td class="header-right">
+                                <div class="doc-title">QUOTATION</div>
+                                <div class="doc-subtitle">PROFORMA ESTIMATE / BILL</div>
+                                <table class="meta-grid-table">
+                                    <tr>
+                                        <td class="meta-th">Date:</td>
+                                        <td class="meta-td">${dateString}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="meta-th">Validity:</td>
+                                        <td class="meta-td">30 Days</td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
                     </table>
 
-                    <!-- Meta Information Ribbon (Quote Date only) -->
-                    <div class="meta-ribbon">
-                        <span class="meta-label">Quote Date:</span>
-                        <span class="meta-value">${dateString}</span>
-                    </div>
+                    <div class="header-divider"></div>
 
                     <!-- Switchboard Visual Design Preview -->
                     ${boardImageDataUrl ? `
