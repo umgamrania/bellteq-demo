@@ -10,6 +10,7 @@
 }
 
 .backplateContainer {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -19,13 +20,52 @@
 .backplateContainer img {
     display: block;
     height: 150px;
+    width: auto;
 }
 
 .backplateContainer.twoRow img {
-    position: absolute;
     height: 280px;
 }
 
 .backplateContainer.threeRow img {
     height: 440px;
+}
+
+.holdersContainer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+}
+
+.twoRow .holdersContainer {
+    margin-top: 1px;
+    gap: 61px;
+}
+
+.threeRow .holdersContainer {
+    margin-top: 2px;
+    gap: 67px;
+
+    .componentHolder {
+        height: 82px;
+    }
+}
+
+.componentHolder {
+    height: 80px;
+    display: grid;
+    position: relative;
+    box-sizing: border-box;
+    background: #f008;
+}
+
+.slot {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    box-sizing: border-box;
 }
