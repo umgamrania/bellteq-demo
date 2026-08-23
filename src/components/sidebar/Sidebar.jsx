@@ -11,7 +11,7 @@ export default function Sidebar({
 }) {
     const childArray = Children.toArray(children);
     const context = useContext(sidebarContext);
-    const { setMaterial } = useContext(boardContext) || {};
+    const { setMaterial, isStageComplete } = useContext(boardContext) || {};
     const [localActiveIdx, setLocalActiveIdx] = useState(0);
     const activeIdx = context ? context.activeIdx : localActiveIdx;
     const setActiveIdx = context ? context.setActiveIdx : setLocalActiveIdx;
@@ -22,6 +22,7 @@ export default function Sidebar({
     const hasChildren = childArray.length > 0;
     const isFirst = activeIdx === 0;
     const isLast = activeIdx >= childArray.length - 1;
+    const isCurrentStageComplete = isStageComplete ? isStageComplete(activeIdx) : true;
 
     const currentTitle = childArray[activeIdx]?.props?.title || title;
 
@@ -40,6 +41,7 @@ export default function Sidebar({
     };
 
     const handleNext = () => {
+        if (!isCurrentStageComplete) return;
         setDirection("next");
         setActiveIdx((prev) => Math.min(childArray.length - 1, prev + 1));
     };
@@ -75,7 +77,7 @@ export default function Sidebar({
                 <Button 
                     variant="primary"
                     rightIcon={<ArrowRight size={16} />}
-                    disabled={!hasChildren || isLast}
+                    disabled={!hasChildren || isLast || !isCurrentStageComplete}
                     onClick={handleNext}
                 >
                     Next

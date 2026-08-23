@@ -46,6 +46,11 @@
     outline-offset: 2px;
 }
 
+.card.selected {
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 2px var(--text-primary);
+}
+
 .imageWrapper {
     width: 100%;
     flex: 1;

@@ -1,8 +1,10 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
+import { sidebarContext } from "./sidebar";
 
 export const boardContext = createContext(null);
 
 export default function BoardContext({ children }) {
+    const { setActiveIdx } = useContext(sidebarContext) || {};
     const [backplate, setBackplate] = useState(null);
     const [slots, setSlots] = useState(0);
     // componentIds: Array<Array<string>> — 2D array of instance_ids, preserving row layout
@@ -81,10 +83,26 @@ export default function BoardContext({ children }) {
         if (insertIdx === -1)
             return alert("Not enough space on the board!");
 
-        setComponents(prev => ({ ...prev, [instance_id]: newComponent }));
-        setComponentIds(prev => prev.map((rowIds, idx) =>
+        const nextComponents = { ...components, [instance_id]: newComponent };
+        const nextComponentIds = componentIds.map((rowIds, idx) =>
             idx === insertIdx ? [...rowIds, instance_id] : rowIds
-        ));
+        );
+
+        setComponents(nextComponents);
+        setComponentIds(nextComponentIds);
+
+        // Auto-advance if all slots across all rows are filled
+        if (backplate.slots && backplate.rows) {
+            const slotsPerRow = Math.floor(backplate.slots / backplate.rows);
+            const allFilled = nextComponentIds.every((rowIds) => {
+                const occupied = rowIds.reduce((s, id) => s + (nextComponents[id]?.slots || 0), 0);
+                return slotsPerRow - occupied === 0;
+            });
+
+            if (allFilled && setActiveIdx) {
+                setActiveIdx(2);
+            }
+        }
     }
 
     function removeComponent(target) {
@@ -167,7 +185,36 @@ export default function BoardContext({ children }) {
         setComponents(nextComponents);
         const nextSlot = findNextEmptySlot(nextComponents, targetSlot);
         setActiveSlot(nextSlot);
+
+        // If no more empty slots remain, auto advance to Material stage
+        if ((!nextSlot || !nextSlot.componentId) && setActiveIdx) {
+            setActiveIdx(3);
+        }
     }
+
+    const isStageComplete = (idx) => {
+        if (idx === 0) {
+            return Boolean(backplate);
+        }
+        if (idx === 1) {
+            if (!backplate || !backplate.slots || !backplate.rows) return false;
+            const slotsPerRow = Math.floor(backplate.slots / backplate.rows);
+            return componentIds.length > 0 && componentIds.every((rowIds) => {
+                const occupied = rowIds.reduce((s, id) => s + (components[id]?.slots || 0), 0);
+                return slotsPerRow - occupied === 0;
+            });
+        }
+        if (idx === 2) {
+            const switchComps = Object.values(components).filter(
+                (c) => c && c.category === "switches" && Array.isArray(c.iconImages) && c.iconImages.length > 0
+            );
+            return switchComps.every((c) => c.iconImages.every((img) => Boolean(img)));
+        }
+        if (idx === 3) {
+            return Boolean(material);
+        }
+        return true;
+    };
 
     /** Convenience helper: look up a component by its instance_id */
     const getComponent = (id) => components[id];
@@ -180,7 +227,8 @@ export default function BoardContext({ children }) {
             componentIds, components, 
             getComponent, addComponent, removeComponent,
             setIcon, findNextEmptySlot,
-            material, selectMaterial: setMaterial, setMaterial }}>
+            material, selectMaterial: setMaterial, setMaterial,
+            isStageComplete }}>
             {children}
         </boardContext.Provider>
     );
