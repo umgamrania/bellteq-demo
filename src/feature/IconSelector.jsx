@@ -1,27 +1,49 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useContext } from "react";
 import { Search, X } from "lucide-react";
 import { ICONS } from "../data/icons";
 import styles from "./IconSelector.module.css";
+import { boardContext } from "../context/board";
 
 export default function IconSelector({
     onSelect,
     icons = ICONS,
 }) {
+    const { setIcon, activeSlot, getSlotType } = useContext(boardContext);
     const [searchQuery, setSearchQuery] = useState("");
+
+    const slotType = useMemo(() => {
+        return getSlotType ? getSlotType(activeSlot) : "NORMAL";
+    }, [getSlotType, activeSlot]);
+
+    const availableIcons = useMemo(() => {
+        if (slotType === "FAN") {
+            return icons.filter((icon) => icon.id === "22" || icon.id === "23");
+        }
+        if (slotType === "UPDOWN") {
+            return icons.filter((icon) => icon.id === "54" || icon.id === "55");
+        }
+        return icons;
+    }, [icons, slotType]);
 
     const filteredIcons = useMemo(() => {
         const query = searchQuery.trim().toLowerCase();
-        if (!query) return icons;
+        if (!query) return availableIcons;
 
-        return icons.filter(
+        return availableIcons.filter(
             (icon) =>
                 icon.id.toLowerCase().includes(query) ||
                 icon.name.toLowerCase().includes(query)
         );
-    }, [icons, searchQuery]);
+    }, [availableIcons, searchQuery]);
+
+    const headerTitle = useMemo(() => {
+        if (slotType === "FAN") return "Fan Icons";
+        if (slotType === "UPDOWN") return "Up / Down Icons";
+        return "All Icons";
+    }, [slotType]);
 
     const handleSelect = (icon) => {
-        // Will be wired to sidebar context
+        setIcon(icon);
         onSelect?.(icon);
     };
 
@@ -52,7 +74,7 @@ export default function IconSelector({
             </div>
 
             <div className={styles.header}>
-                <span className={styles.title}>All Icons</span>
+                <span className={styles.title}>{headerTitle}</span>
                 <span className={styles.badge}>{filteredIcons.length}</span>
             </div>
 

@@ -5,72 +5,144 @@ export const boardContext = createContext(null);
 export default function BoardContext({ children }) {
     const [backplate, setBackplate] = useState(null);
     const [slots, setSlots] = useState(0);
-    const [componentRows, setComponentRows] = useState([]);
+    // componentIds: Array<Array<string>> — 2D array of instance_ids, preserving row layout
+    const [componentIds, setComponentIds] = useState([]);
+    // components: Record<string, Component> — flat lookup map keyed by instance_id
+    const [components, setComponents] = useState({});
+    const [activeSlot, setActiveSlot] = useState({});
 
     useEffect(() => {
-        console.log(componentRows)
-    }, [componentRows]);
+        console.log({ componentIds, components });
+    }, [componentIds, components]);
+
+    function getSlotType(slot) {
+        const targetSlot = slot || activeSlot;
+        if (!targetSlot) return "NORMAL";
+
+        let componentId;
+        let idx;
+
+        if (Array.isArray(targetSlot)) {
+            [componentId, idx] = targetSlot;
+        } else if (typeof targetSlot === "object") {
+            componentId = targetSlot.componentId;
+            idx = targetSlot.idx;
+        }
+
+        if (!componentId || idx === undefined || idx === null) {
+            return "NORMAL";
+        }
+
+        const component = components[componentId];
+        if (!component) return "NORMAL";
+
+        if ((component.id === "ssw-2f" || component.id === "ssw-4f") && (idx === 0)) {
+            return "FAN";
+        }
+
+        if ((component.id === "ssw-1x2") && (idx === 1 || idx === 2)) {
+            return "UPDOWN";
+        }
+
+        return "NORMAL";
+    }
 
     function selectBackplate(backplate) {
         setBackplate(backplate);
         setSlots(backplate?.slots ?? 0);
-        setComponentRows(Array.from({length:backplate.rows}, () => []));
+        setComponentIds(Array.from({ length: backplate.rows }, () => []));
+        setComponents({});
+        setActiveSlot({});
     }
 
-
-    const getFreeSlots = (row) => {
+    const getFreeSlots = (rowIds) => {
         if (!backplate || !backplate.rows) return 0;
         const slotsPerRow = Math.floor(backplate.slots / backplate.rows);
-        const occupied = row.reduce((s, o) => s + (o.slots || 0), 0);
+        const occupied = rowIds.reduce((s, id) => s + (components[id]?.slots || 0), 0);
         return slotsPerRow - occupied;
     };
 
     function addComponent(component) {
         if (!backplate) return;
 
-        const newComponent = {
-            ...component,
-            instance_id: typeof crypto !== "undefined" && crypto.randomUUID 
-                ? crypto.randomUUID() 
-                : Math.random().toString(36).substring(2, 9),
+        const instance_id = typeof crypto !== "undefined" && crypto.randomUUID
+            ? crypto.randomUUID()
+            : Math.random().toString(36).substring(2, 9);
+
+        const newComponent = { 
+            ...component, 
+            instance_id,
+            iconImages: Array.from({length: component.icons}, () => null)
         };
 
-        const insertIdx = componentRows.findIndex((row) => getFreeSlots(row) >= component.slots);
-        
-        if (insertIdx == -1)
+        const insertIdx = componentIds.findIndex((rowIds) => getFreeSlots(rowIds) >= component.slots);
+
+        if (insertIdx === -1)
             return alert("Not enough space on the board!");
 
-        setComponentRows(prev => prev.map((row, idx) => idx == insertIdx ? [...row, newComponent]: row));
+        setComponents(prev => ({ ...prev, [instance_id]: newComponent }));
+        setComponentIds(prev => prev.map((rowIds, idx) =>
+            idx === insertIdx ? [...rowIds, instance_id] : rowIds
+        ));
     }
 
-    function removeComponent(target, componentIndex) {
-        setComponentRows(prev => {
-            // Support removeComponent(rowIndex, componentIndex)
-            if (typeof target === "number" && typeof componentIndex === "number") {
-                return prev.map((row, rIdx) =>
-                    rIdx === target ? row.filter((_, cIdx) => cIdx !== componentIndex) : row
-                );
-            }
+    function removeComponent(target) {
+        // Resolve the target instance_id
+        const targetId = typeof target === "object" && target !== null
+            ? target.instance_id
+            : target; // already a string id
 
-            // Support removeComponent(component) or removeComponent(instanceId)
-            const targetId = typeof target === "object" && target !== null ? target.instance_id : target;
+        if (!targetId) return;
 
-            return prev.map(row =>
-                row.filter(c => {
-                    if (targetId && c.instance_id) {
-                        return c.instance_id !== targetId;
-                    }
-                    if (typeof target === "object" && target !== null) {
-                        return c !== target;
-                    }
-                    return c.id !== target;
-                })
-            );
+        if (activeSlot?.componentId === targetId) {
+            setActiveSlot({});
+        }
+
+        setComponents(prev => {
+            const next = { ...prev };
+            delete next[targetId];
+            return next;
+        });
+        setComponentIds(prev => prev.map(rowIds => rowIds.filter(id => id !== targetId)));
+    }
+
+    function setIcon(icon, slot) {
+        const targetSlot = slot || activeSlot;
+        if (!targetSlot || !targetSlot.componentId || targetSlot.idx === undefined || targetSlot.idx === null) {
+            return;
+        }
+
+        const { componentId, idx } = targetSlot;
+        const imageSrc = typeof icon === "object" && icon !== null ? icon.src : icon;
+
+        setComponents(prev => {
+            const targetComponent = prev[componentId];
+            if (!targetComponent) return prev;
+
+            const iconImages = [...(targetComponent.iconImages || [])];
+            iconImages[idx] = imageSrc;
+
+            return {
+                ...prev,
+                [componentId]: {
+                    ...targetComponent,
+                    iconImages
+                }
+            };
         });
     }
 
+    /** Convenience helper: look up a component by its instance_id */
+    const getComponent = (id) => components[id];
+
     return (
-        <boardContext.Provider value={{ backplate, slots, componentRows, selectBackplate, addComponent, removeComponent }}>
+        <boardContext.Provider value={{ 
+            backplate, selectBackplate,
+            slots, getSlotType,
+            activeSlot, setActiveSlot,
+            componentIds, components, 
+            getComponent, addComponent, removeComponent,
+            setIcon }}>
             {children}
         </boardContext.Provider>
     );

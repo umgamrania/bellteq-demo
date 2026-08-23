@@ -5,7 +5,7 @@ import SwitchComponent from "./SwitchComponent";
 import OtherComponent from "./OtherComponent";
 
 export default function Preview() {
-    const { backplate, componentRows } = useContext(boardContext);
+    const { backplate, componentIds, components } = useContext(boardContext);
     const rows = backplate?.rows ?? 0;
     const slotWidth = backplate?.slotWidth ?? 40;
     const slotsPerRow = rows > 0 ? Math.floor(backplate.slots / rows) : (backplate?.slots ?? 0);
@@ -37,11 +37,13 @@ export default function Preview() {
                                 }}
                                 data-row-index={rowIndex}
                             >
-                                {componentRows[rowIndex]?.map((component, idx) => (
-                                    component.category == "switches"
-                                    ? <SwitchComponent key={`${rowIndex}.${idx}`} component={component} />
-                                    : <OtherComponent key={`${rowIndex}.${idx}`} component={component} />
-                                ))}
+                                {componentIds[rowIndex]?.map((id) => {
+                                    const component = components[id];
+                                    if (!component) return null;
+                                    return component.category === "switches"
+                                        ? <SwitchComponent key={id} component={component} />
+                                        : <OtherComponent key={id} component={component} />;
+                                })}
                             </div>
                         ))}
                     </div>
