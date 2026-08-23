@@ -10,6 +10,7 @@ export default function BoardContext({ children }) {
     // components: Record<string, Component> — flat lookup map keyed by instance_id
     const [components, setComponents] = useState({});
     const [activeSlot, setActiveSlot] = useState({});
+    const [material, setMaterial] = useState(null);
 
     useEffect(() => {
         console.log({ componentIds, components });
@@ -178,7 +179,8 @@ export default function BoardContext({ children }) {
             activeSlot, setActiveSlot,
             componentIds, components, 
             getComponent, addComponent, removeComponent,
-            setIcon, findNextEmptySlot }}>
+            setIcon, findNextEmptySlot,
+            material, selectMaterial: setMaterial, setMaterial }}>
             {children}
         </boardContext.Provider>
     );

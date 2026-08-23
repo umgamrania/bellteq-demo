@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import Button from "../button/Button";
 import styles from "./Sidebar.module.css";
 import { sidebarContext } from "../../context/sidebar";
+import { boardContext } from "../../context/board";
 
 export default function Sidebar({
     children,
@@ -10,6 +11,7 @@ export default function Sidebar({
 }) {
     const childArray = Children.toArray(children);
     const context = useContext(sidebarContext);
+    const { setMaterial } = useContext(boardContext) || {};
     const [localActiveIdx, setLocalActiveIdx] = useState(0);
     const activeIdx = context ? context.activeIdx : localActiveIdx;
     const setActiveIdx = context ? context.setActiveIdx : setLocalActiveIdx;
@@ -30,6 +32,9 @@ export default function Sidebar({
     }, [activeIdx]);
 
     const handleBack = () => {
+        if (activeIdx === childArray.length - 1) {
+            setMaterial?.(null);
+        }
         setDirection("back");
         setActiveIdx((prev) => Math.max(0, prev - 1));
     };

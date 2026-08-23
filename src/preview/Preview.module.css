@@ -80,8 +80,8 @@
     grid-template-rows: 100%;
     position: relative;
     box-sizing: border-box;
-    background: #f008;
-    outline: 1px solid #000;
+    background: transparent;
+    outline: none;
 }
 
 .component {
@@ -95,8 +95,16 @@
     background: #000;
 }
 
+.hasMaterial .component.switch {
+    background: transparent;
+}
+
 .component.other {
     background: rgba(240, 240, 240, 0.8);
+}
+
+.hasMaterial .component.other {
+    background: transparent;
 }
 
 .component.other img {
