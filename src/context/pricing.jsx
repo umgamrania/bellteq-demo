@@ -5,6 +5,7 @@ export const pricingContext = createContext(null);
 
 const STORAGE_KEY_GST = "myob_gst_rate_v1";
 const STORAGE_KEY_DISCOUNT = "myob_discount_config_v1";
+const STORAGE_KEY_MISC_COST = "myob_misc_cost_v1";
 
 export default function PricingProvider({ children }) {
     // Initialize prices from localStorage with fallback to default catalog
@@ -51,6 +52,20 @@ export default function PricingProvider({ children }) {
         return { type: "percent", value: 0 };
     });
 
+    // Misc cost state: a flat ₹ amount added after GST (e.g. delivery, installation)
+    const [miscCost, setMiscCostState] = useState(() => {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY_MISC_COST);
+            if (saved !== null) {
+                const num = Number(saved);
+                if (!isNaN(num) && num >= 0) return num;
+            }
+        } catch (e) {
+            console.error("Failed to load misc cost from localStorage", e);
+        }
+        return 0;
+    });
+
     // Modal state for price configuration
     const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
     // Responsive sidebar toggle: open by default on desktop (>= 1024px), closed on mobile
@@ -89,6 +104,18 @@ export default function PricingProvider({ children }) {
             localStorage.setItem(STORAGE_KEY_DISCOUNT, JSON.stringify(discountConfig));
         } catch (e) {
             console.error("Failed to save discount to localStorage", e);
+        }
+    }, []);
+
+    // Persist Misc Cost
+    const setMiscCost = useCallback((value) => {
+        const num = Number(value);
+        const val = isNaN(num) || num < 0 ? 0 : Math.round(num * 100) / 100;
+        setMiscCostState(val);
+        try {
+            localStorage.setItem(STORAGE_KEY_MISC_COST, val.toString());
+        } catch (e) {
+            console.error("Failed to save misc cost to localStorage", e);
         }
     }, []);
 
@@ -243,8 +270,11 @@ export default function PricingProvider({ children }) {
         }
         gstAmount = Math.round(gstAmount * 100) / 100;
 
+        // Misc Cost (flat addition after GST — e.g. delivery, installation, other charges)
+        const miscCostAmount = Math.max(0, Math.round(miscCost * 100) / 100);
+
         // Final Total
-        const finalTotal = Math.round((taxableAmount + gstAmount) * 100) / 100;
+        const finalTotal = Math.round((taxableAmount + gstAmount + miscCostAmount) * 100) / 100;
 
         return {
             backplateItem,
@@ -261,9 +291,10 @@ export default function PricingProvider({ children }) {
             taxableAmount,
             gstRate,
             gstAmount,
+            miscCostAmount,
             finalTotal,
         };
-    }, [getBackplatePrice, getComponentPrice, getMaterialPrice, discount, gstRate]);
+    }, [getBackplatePrice, getComponentPrice, getMaterialPrice, discount, gstRate, miscCost]);
 
     return (
         <pricingContext.Provider
@@ -274,6 +305,8 @@ export default function PricingProvider({ children }) {
                 setGstRate,
                 discount,
                 setDiscount,
+                miscCost,
+                setMiscCost,
                 isPricingModalOpen,
                 setIsPricingModalOpen,
                 isPricingSidebarOpen,

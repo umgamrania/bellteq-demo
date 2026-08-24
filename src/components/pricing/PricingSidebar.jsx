@@ -9,6 +9,7 @@ import {
     Percent,
     Tag,
     X,
+    Wrench,
 } from "lucide-react";
 import { boardContext } from "../../context/board";
 import { pricingContext } from "../../context/pricing";
@@ -33,6 +34,8 @@ export default function PricingSidebar() {
         setGstRate,
         discount,
         setDiscount,
+        miscCost,
+        setMiscCost,
         setIsPricingModalOpen,
         isPricingSidebarOpen,
         setIsPricingSidebarOpen,
@@ -52,6 +55,16 @@ export default function PricingSidebar() {
         return discount.type === "percent" ? "custom_percent" : "custom_flat";
     });
     const [customDiscountInput, setCustomDiscountInput] = useState(() => (discount.value > 0 ? String(discount.value) : ""));
+
+    // Misc cost local input state (synced to context)
+    const [miscCostInput, setMiscCostInput] = useState(() => (miscCost > 0 ? String(miscCost) : ""));
+
+    const handleMiscCostChange = (e) => {
+        const val = e.target.value;
+        setMiscCostInput(val);
+        const num = parseFloat(val);
+        setMiscCost(isNaN(num) || num < 0 ? 0 : num);
+    };
 
     // Calculate BOM & totals
     const breakdown = calculateBreakdown(backplate, components, material);
@@ -396,6 +409,26 @@ export default function PricingSidebar() {
                             )}
                         </div>
                     </div>
+
+                    {/* Misc. Costs Row */}
+                    <div className={`${styles.controlRow} ${styles.miscRow}`}>
+                        <div className={styles.controlLabel}>
+                            <Wrench size={13} className={styles.controlIcon} />
+                            <span>Misc. Costs</span>
+                        </div>
+                        <div className={styles.miscInputWrapper}>
+                            <span className={styles.inputSuffix}>₹</span>
+                            <input
+                                type="number"
+                                min="0"
+                                step="10"
+                                value={miscCostInput}
+                                onChange={handleMiscCostChange}
+                                placeholder="0"
+                                className={styles.inlineNumberInput}
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 {/* Bill Summary Breakdown Card */}
@@ -426,6 +459,15 @@ export default function PricingSidebar() {
                             {breakdown.gstAmount > 0 ? `+${formatPrice(breakdown.gstAmount)}` : "₹0.00"}
                         </span>
                     </div>
+
+                    {breakdown.miscCostAmount > 0 && (
+                        <div className={styles.summaryRow}>
+                            <span className={styles.summaryLabel}>Misc. Costs</span>
+                            <span className={styles.summaryValue}>
+                                +{formatPrice(breakdown.miscCostAmount)}
+                            </span>
+                        </div>
+                    )}
 
                     <div className={styles.divider} />
 
