@@ -74,21 +74,21 @@
 }
 
 .twoRow .holdersContainer {
-    margin-top: 1px;
-    gap: 61px;
+    /* margin-top: 1px; */
+    gap: 59px;
 }
 
 .threeRow .holdersContainer {
     margin-top: 2px;
-    gap: 67px;
+    gap: 66px;
 
     .componentHolder {
-        height: 82px;
+        height: 83px;
     }
 }
 
 .componentHolder {
-    height: 80px;
+    height: 81px;
     display: grid;
     grid-template-rows: 100%;
     position: relative;

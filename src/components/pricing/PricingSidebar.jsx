@@ -22,7 +22,7 @@ const GST_OPTIONS = [
     { label: "12%", value: 12 },
     { label: "18% (Standard)", value: 18 },
     { label: "28%", value: 28 },
-    { label: "Custom %", value: "custom" },
+    { label: "Custom", value: "custom" },
 ];
 
 export default function PricingSidebar() {
@@ -350,7 +350,7 @@ export default function PricingSidebar() {
                                 <option value="15%">15% Off</option>
                                 <option value="20%">20% Off</option>
                                 <option value="custom_percent">Custom %</option>
-                                <option value="custom_flat">Custom Flat (₹)</option>
+                                <option value="custom_flat">Custom ₹</option>
                             </select>
 
                             {(discountMode === "custom_percent" || discountMode === "custom_flat") && (
@@ -401,7 +401,7 @@ export default function PricingSidebar() {
                                         step="0.5"
                                         value={customGstInput}
                                         onChange={handleCustomGstInputChange}
-                                        placeholder="Rate"
+                                        placeholder="00"
                                         className={styles.inlineNumberInput}
                                     />
                                     <span className={styles.inputSuffix}>%</span>
