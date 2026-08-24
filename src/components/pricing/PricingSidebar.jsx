@@ -362,7 +362,7 @@ export default function PricingSidebar() {
                                         step={discountMode === "custom_percent" ? "1" : "50"}
                                         value={customDiscountInput}
                                         onChange={handleCustomDiscountInputChange}
-                                        placeholder={discountMode === "custom_percent" ? "%" : "₹"}
+                                        placeholder={discountMode === "custom_percent" ? "20" : "10"}
                                         className={styles.inlineNumberInput}
                                     />
                                     <span className={styles.inputSuffix}>
