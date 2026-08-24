@@ -5,10 +5,17 @@ import { sidebarContext } from "../context/sidebar";
 import styles from "./Preview.module.css";
 import SwitchComponent from "./SwitchComponent";
 import OtherComponent from "./OtherComponent";
+import WallVisualizer from "./WallVisualizer";
 
 export default function Preview() {
     const { backplate, componentIds, components, material } = useContext(boardContext);
     const { activeIdx } = useContext(sidebarContext) || {};
+
+    // If on Step 6 (Wall Placement / Room Visualizer), render WallVisualizer
+    if (activeIdx === 5) {
+        return <WallVisualizer />;
+    }
+
     const [zoom, setZoom] = useState(1);
 
     const containerRef = useRef(null);

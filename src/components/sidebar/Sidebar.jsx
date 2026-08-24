@@ -44,9 +44,6 @@ export default function Sidebar({
     }, [activeIdx]);
 
     const handleBack = () => {
-        if (activeIdx === childArray.length - 1) {
-            setMaterial?.(null);
-        }
         directionRef.current = "back";
         setActiveIdx((prev) => Math.max(0, prev - 1));
     };

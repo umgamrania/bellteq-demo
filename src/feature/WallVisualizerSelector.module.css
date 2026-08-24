@@ -1,0 +1,470 @@
+.container {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.toast {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #0f172a;
+    color: #ffffff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sectionHeading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Upload Dropzone */
+.dropZone {
+    position: relative;
+    border: 2px dashed #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 14px 12px;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dropZone:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+}
+
+.dropZoneActive {
+    border-color: #0f172a;
+    background: #f1f5f9;
+}
+
+.dropZoneHasImage {
+    padding: 10px;
+    border-style: solid;
+    border-color: #e2e8f0;
+    background: #f8fafc;
+}
+
+.hiddenFileInput {
+    display: none;
+}
+
+.uploadPrompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    text-align: center;
+    padding: 6px 0;
+}
+
+.uploadIconCircle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.uploadPromptText {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.uploadPrimary {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.uploadSecondary {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+/* Dual Upload Action Buttons */
+.uploadButtonsRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.uploadChoiceBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.uploadChoiceBtn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+.cameraBtn {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0284c7;
+}
+
+.cameraBtn:hover {
+    background: #e0f2fe;
+    border-color: #7dd3fc;
+    color: #0369a1;
+}
+
+.customImageActiveBox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+}
+
+.customThumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #e2e8f0;
+    flex-shrink: 0;
+    border: 1px solid #cbd5e1;
+}
+
+.customThumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.customMeta {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.customName {
+    font-size: 12px;
+    font-weight: 600;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.customSub {
+    font-size: 10.5px;
+    color: #16a34a;
+    font-weight: 500;
+}
+
+.removeImageBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #ef4444;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.removeImageBtn:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+}
+
+/* Preset Wall Grid */
+.presetsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.presetCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.presetCard:hover {
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+}
+
+.presetSelected {
+    border-color: #0f172a;
+    background: #f8fafc;
+    box-shadow: 0 0 0 1.5px #0f172a;
+}
+
+.presetThumb {
+    position: relative;
+    width: 100%;
+    height: 58px;
+    border-radius: 5px;
+    overflow: hidden;
+    background: #f1f5f9;
+}
+
+.presetThumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.presetCheck {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    background: #0f172a;
+    color: #ffffff;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.presetName {
+    font-size: 11px;
+    font-weight: 600;
+    color: #334155;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    padding: 0 2px;
+}
+
+/* Control Box */
+.controlBox {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sliderHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sliderLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.sliderValue {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f172a;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.sliderGroup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stepperBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.stepperBtn:hover:not(:disabled) {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.stepperBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.rangeSlider {
+    flex: 1;
+    accent-color: #0f172a;
+    height: 6px;
+    cursor: pointer;
+}
+
+.actionsRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.utilityBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.utilityBtn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+/* Export Buttons */
+.exportButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.exportBtnPrimary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #0f172a;
+    color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.exportBtnPrimary:hover:not(:disabled) {
+    background: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.exportBtnSecondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.exportBtnSecondary:hover:not(:disabled) {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+.spinner {
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

@@ -8,6 +8,7 @@ import ComponentSelector from "./feature/ComponentSelector";
 import IconSelector from "./feature/IconSelector";
 import MaterialSelector from "./feature/MaterialSelector";
 import ExportSelector from "./feature/ExportSelector";
+import WallVisualizerSelector from "./feature/WallVisualizerSelector";
 import Preview from "./preview/Preview";
 import PricingSidebar from "./components/pricing/PricingSidebar";
 import PricingModal from "./components/pricing/PricingModal";
@@ -31,6 +32,7 @@ export default function App() {
               <IconSelector title="Choose icons" />
               <MaterialSelector title="Choose materials" />
               <ExportSelector title="Export & Download" />
+              <WallVisualizerSelector title="Place on Wall" />
             </Sidebar>
             <Preview />
             <PricingSidebar />

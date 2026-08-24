@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { sidebarContext } from "./sidebar";
+import { WALL_PRESETS } from "../data/wallPresets";
 
 export const boardContext = createContext(null);
 
@@ -13,6 +14,20 @@ export default function BoardContext({ children }) {
     const [components, setComponents] = useState({});
     const [activeSlot, setActiveSlot] = useState({});
     const [material, setMaterial] = useState(null);
+
+    // Wall visualizer mockup state (Step 6)
+    const DEFAULT_WALL_SCALE = 0.55;
+    const [wallImage, setWallImage] = useState(WALL_PRESETS[0]?.src || "");
+    const [wallPosition, setWallPosition] = useState({ x: 0, y: 0 });
+    const [wallScale, setWallScale] = useState(DEFAULT_WALL_SCALE);
+    const [wallRotation, setWallRotation] = useState(0);
+    const [wallShadow, setWallShadow] = useState("realistic");
+
+    const resetWallTransform = () => {
+        setWallPosition({ x: 0, y: 0 });
+        setWallScale(DEFAULT_WALL_SCALE);
+        setWallRotation(0);
+    };
 
     useEffect(() => {
         console.log({ componentIds, components });
@@ -228,6 +243,12 @@ export default function BoardContext({ children }) {
             getComponent, addComponent, removeComponent,
             setIcon, findNextEmptySlot,
             material, selectMaterial: setMaterial, setMaterial,
+            wallImage, setWallImage,
+            wallPosition, setWallPosition,
+            wallScale, setWallScale,
+            wallRotation, setWallRotation,
+            wallShadow, setWallShadow,
+            resetWallTransform,
             isStageComplete }}>
             {children}
         </boardContext.Provider>

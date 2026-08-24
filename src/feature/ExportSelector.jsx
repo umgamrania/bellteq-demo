@@ -19,15 +19,9 @@ export default function ExportSelector() {
     const [isExportingPng, setIsExportingPng] = useState(false);
     const [isExportingJpeg, setIsExportingJpeg] = useState(false);
     const [isExportingPdf, setIsExportingPdf] = useState(false);
-    const [successMessage, setSuccessMessage] = useState("");
 
     const breakdown = calculateBreakdown(backplate, components, material);
     const hasBackplate = Boolean(backplate?.src);
-
-    const showNotification = (msg) => {
-        setSuccessMessage(msg);
-        setTimeout(() => setSuccessMessage(""), 3000);
-    };
 
     // Download PNG with transparent background and high DPI
     const handleDownloadPng = async () => {
@@ -49,7 +43,6 @@ export default function ExportSelector() {
             link.download = fileName;
             link.href = dataUrl;
             link.click();
-            showNotification("PNG image downloaded successfully!");
         } catch (err) {
             console.error("Error generating PNG image:", err);
             alert("Failed to export image. Please try again.");
@@ -80,7 +73,6 @@ export default function ExportSelector() {
             link.download = fileName;
             link.href = dataUrl;
             link.click();
-            showNotification("JPEG image downloaded successfully!");
         } catch (err) {
             console.error("Error generating JPEG image:", err);
             alert("Failed to export JPEG image. Please try again.");
@@ -569,7 +561,6 @@ export default function ExportSelector() {
             };
 
             setTimeout(triggerPrint, 350);
-            showNotification("Quotation generated!");
         } catch (err) {
             console.error("Error generating PDF:", err);
             alert("Failed to generate PDF quotation.");
@@ -580,14 +571,6 @@ export default function ExportSelector() {
 
     return (
         <div className={styles.container}>
-            {/* Notification Toast */}
-            {successMessage && (
-                <div className={styles.toast}>
-                    <Check size={14} />
-                    <span>{successMessage}</span>
-                </div>
-            )}
-
             {/* Export Actions Section */}
             <div className={styles.exportSection}>
                 <h4 className={styles.sectionTitle}>Export Options</h4>
