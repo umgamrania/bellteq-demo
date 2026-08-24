@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { boardContext } from "../context/board";
 import { pricingContext } from "../context/pricing";
+import { COMPANY_INFO } from "../data/companyInfo";
 import styles from "./ExportSelector.module.css";
 
 export default function ExportSelector() {
@@ -177,12 +178,45 @@ export default function ExportSelector() {
                 `;
             }
 
+            // Resolve company branding logo URL
+            let logoUrl = "";
+            if (COMPANY_INFO?.logoSrc) {
+                const rawLogo = COMPANY_INFO.logoSrc.trim();
+                if (rawLogo.startsWith("http://") || rawLogo.startsWith("https://") || rawLogo.startsWith("data:")) {
+                    logoUrl = rawLogo;
+                } else {
+                    const cleanPath = rawLogo.replace(/^\.\//, "").replace(/^\//, "");
+                    logoUrl = new URL(cleanPath, window.location.href).href;
+                }
+            }
+
+            // Assemble company contact details
+            const contactPartsRow1 = [];
+            if (COMPANY_INFO?.gstin) contactPartsRow1.push(`<strong>GSTIN:</strong> ${COMPANY_INFO.gstin}`);
+            if (COMPANY_INFO?.email) contactPartsRow1.push(`<strong>Email:</strong> ${COMPANY_INFO.email}`);
+
+            const contactPartsRow2 = [];
+            if (COMPANY_INFO?.phone) contactPartsRow2.push(`<strong>Phone:</strong> ${COMPANY_INFO.phone}`);
+            if (COMPANY_INFO?.website) contactPartsRow2.push(`<strong>Web:</strong> ${COMPANY_INFO.website}`);
+
+            const contactLines = [
+                contactPartsRow1.length > 0 ? contactPartsRow1.join(" &bull; ") : "",
+                contactPartsRow2.length > 0 ? contactPartsRow2.join(" &bull; ") : "",
+                COMPANY_INFO?.address ? `<span>${COMPANY_INFO.address}</span>` : "",
+            ].filter(Boolean);
+            const contactDetailsHtml = contactLines.join("<br/>");
+
+            const docTitle = COMPANY_INFO?.quotationTitle || "QUOTATION";
+            const docSubtitle = COMPANY_INFO?.quotationSubtitle || "PROFORMA ESTIMATE / BILL";
+            const docValidity = COMPANY_INFO?.validity || "30 Days";
+            const companyName = COMPANY_INFO?.name || "BELLATEQ SMART LIVING";
+
             const printContent = `
                 <!DOCTYPE html>
                 <html>
                 <head>
                     <meta charset="utf-8" />
-                    <title>Board Quotation</title>
+                    <title>${companyName ? `${companyName} - Quotation` : "Board Quotation"}</title>
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap');
                         
@@ -417,16 +451,13 @@ export default function ExportSelector() {
                     <table class="header-table">
                         <tr>
                             <td class="header-left">
-                                <img src="${new URL('logo.webp', window.location.href).href}" alt="Bellateq" class="brand-logo-img" />
-                                <div class="company-subname">BELLATEQ SMART LIVING</div>
-                                <div class="company-details">
-                                    <strong>GSTIN:</strong> 27AAAAA0000A1Z5 &bull; <strong>Email:</strong> support@bellateq.com<br/>
-                                    <strong>Phone:</strong> +91 98765 43210 &bull; <strong>Web:</strong> www.bellateq.com
-                                </div>
+                                ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="brand-logo-img" />` : ""}
+                                ${companyName ? `<div class="company-subname">${companyName}</div>` : ""}
+                                ${contactDetailsHtml ? `<div class="company-details">${contactDetailsHtml}</div>` : ""}
                             </td>
                             <td class="header-right">
-                                <div class="doc-title">QUOTATION</div>
-                                <div class="doc-subtitle">PROFORMA ESTIMATE / BILL</div>
+                                <div class="doc-title">${docTitle}</div>
+                                <div class="doc-subtitle">${docSubtitle}</div>
                                 <table class="meta-grid-table">
                                     <tr>
                                         <td class="meta-th">Date:</td>
@@ -434,7 +465,7 @@ export default function ExportSelector() {
                                     </tr>
                                     <tr>
                                         <td class="meta-th">Validity:</td>
-                                        <td class="meta-td">30 Days</td>
+                                        <td class="meta-td">${docValidity}</td>
                                     </tr>
                                 </table>
                             </td>
@@ -490,6 +521,12 @@ export default function ExportSelector() {
                                 <span>GST (${breakdown.gstRate}%):</span>
                                 <span class="sum-val">${breakdown.gstAmount > 0 ? `+${formatPrice(breakdown.gstAmount)}` : "₹0.00 (0%)"}</span>
                             </div>
+                            ${breakdown.miscCostAmount > 0 ? `
+                                <div class="sum-row">
+                                    <span>Other / Delivery Charges:</span>
+                                    <span class="sum-val">+${formatPrice(breakdown.miscCostAmount)}</span>
+                                </div>
+                            ` : ""}
                             <div class="divider"></div>
                             <div class="grand-total-row">
                                 <span>Total Amount:</span>
