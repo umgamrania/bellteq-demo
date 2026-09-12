@@ -59,7 +59,7 @@ export default function Preview() {
     const rows = backplate?.rows ?? 0;
     const slotWidth = backplate?.slotWidth ?? 40;
     const slotsPerRow = rows > 0 ? Math.floor(backplate.slots / rows) : (backplate?.slots ?? 0);
-    const holderWidth = `${slotsPerRow * slotWidth}px`;
+    const holderWidth = `${slotsPerRow * slotWidth + 2}px`;
 
     const hasMaterial = activeIdx >= 3 && Boolean(material?.src);
 
