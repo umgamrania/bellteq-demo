@@ -1,11 +1,12 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useRef } from "react";
 import { toPng, toJpeg } from "html-to-image";
 import {
     Download,
     Image,
     FileText,
-    Check,
-    Loader2
+    Loader2,
+    FileJson,
+    Upload
 } from "lucide-react";
 import { boardContext } from "../context/board";
 import { pricingContext } from "../context/pricing";
@@ -13,12 +14,26 @@ import { COMPANY_INFO } from "../data/companyInfo";
 import styles from "./ExportSelector.module.css";
 
 export default function ExportSelector() {
-    const { backplate, components, material } = useContext(boardContext);
+    const { backplate, components, material, downloadConfiguration, importConfigFile } = useContext(boardContext);
     const { formatPrice, calculateBreakdown } = useContext(pricingContext);
+
+    const jsonFileInputRef = useRef(null);
 
     const [isExportingPng, setIsExportingPng] = useState(false);
     const [isExportingJpeg, setIsExportingJpeg] = useState(false);
     const [isExportingPdf, setIsExportingPdf] = useState(false);
+
+    const handleLoadJson = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+            await importConfigFile(file);
+        } catch (err) {
+            alert("Failed to load configuration JSON: " + err.message);
+        } finally {
+            e.target.value = "";
+        }
+    };
 
     const breakdown = calculateBreakdown(backplate, components, material);
     const hasBackplate = Boolean(backplate?.src);
@@ -637,6 +652,48 @@ export default function ExportSelector() {
                             <span className={styles.actionSub}>Detailed Bill of Materials & pricing</span>
                         </div>
                         <Download size={16} className={styles.downloadArrow} />
+                    </button>
+
+                    {/* Hidden JSON input */}
+                    <input
+                        ref={jsonFileInputRef}
+                        type="file"
+                        accept=".json,application/json"
+                        style={{ display: "none" }}
+                        onChange={handleLoadJson}
+                    />
+
+                    {/* JSON Configuration Download */}
+                    <button
+                        type="button"
+                        className={styles.actionCard}
+                        onClick={() => downloadConfiguration()}
+                        disabled={!hasBackplate}
+                    >
+                        <div className={styles.actionIconWrapper}>
+                            <FileJson size={20} />
+                        </div>
+                        <div className={styles.actionDetails}>
+                            <span className={styles.actionTitle}>Download Config (JSON)</span>
+                            <span className={styles.actionSub}>Save board design to reload anytime</span>
+                        </div>
+                        <Download size={16} className={styles.downloadArrow} />
+                    </button>
+
+                    {/* JSON Configuration Load */}
+                    <button
+                        type="button"
+                        className={styles.actionCard}
+                        onClick={() => jsonFileInputRef.current?.click()}
+                    >
+                        <div className={styles.actionIconWrapper}>
+                            <Upload size={20} />
+                        </div>
+                        <div className={styles.actionDetails}>
+                            <span className={styles.actionTitle}>Load Config (JSON)</span>
+                            <span className={styles.actionSub}>Restore board state from a saved JSON</span>
+                        </div>
+                        <Upload size={16} className={styles.downloadArrow} />
                     </button>
                 </div>
             </div>

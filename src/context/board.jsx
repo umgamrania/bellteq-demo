@@ -5,7 +5,7 @@ import { WALL_PRESETS } from "../data/wallPresets";
 export const boardContext = createContext(null);
 
 export default function BoardContext({ children }) {
-    const { setActiveIdx } = useContext(sidebarContext) || {};
+    const { setActiveIdx, activeIdx } = useContext(sidebarContext) || {};
     const [backplate, setBackplate] = useState(null);
     const [slots, setSlots] = useState(0);
     // componentIds: Array<Array<string>> — 2D array of instance_ids, preserving row layout
@@ -234,6 +234,150 @@ export default function BoardContext({ children }) {
     /** Convenience helper: look up a component by its instance_id */
     const getComponent = (id) => components[id];
 
+    /** Export full board configuration state to an object */
+    const exportConfiguration = () => {
+        return {
+            version: "1.0",
+            exportedAt: new Date().toISOString(),
+            stageIdx: typeof activeIdx === "number" ? activeIdx : 0,
+            backplate,
+            slots,
+            componentIds,
+            components,
+            material,
+            activeSlot,
+            wall: {
+                wallImage,
+                wallPosition,
+                wallScale,
+                wallRotation,
+                wallShadow,
+            },
+        };
+    };
+
+    /** Download configuration as a JSON file */
+    const downloadConfiguration = (customFilename) => {
+        const config = exportConfiguration();
+        const jsonStr = JSON.stringify(config, null, 2);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const backplateName = backplate?.name ? backplate.name.toLowerCase().replace(/\s+/g, "-") : "board";
+        const dateStr = new Date().toISOString().slice(0, 10);
+        link.download = customFilename || `board-config-${backplateName}-${dateStr}.json`;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    /** Load configuration state from JSON string or object */
+    const loadConfiguration = (configInput) => {
+        try {
+            let config = configInput;
+            if (typeof configInput === "string") {
+                config = JSON.parse(configInput);
+            }
+            if (!config || typeof config !== "object") {
+                throw new Error("Invalid configuration data: Expected an object.");
+            }
+
+            if (config.backplate !== undefined) {
+                setBackplate(config.backplate);
+                setSlots(config.slots ?? (config.backplate?.slots ?? 0));
+            }
+            if (config.componentIds !== undefined) {
+                setComponentIds(Array.isArray(config.componentIds) ? config.componentIds : []);
+            }
+            if (config.components !== undefined) {
+                setComponents(typeof config.components === "object" && config.components !== null ? config.components : {});
+            }
+            if (config.material !== undefined) {
+                setMaterial(config.material);
+            }
+            if (config.activeSlot !== undefined) {
+                setActiveSlot(config.activeSlot || {});
+            }
+
+            if (config.wall) {
+                if (config.wall.wallImage !== undefined) setWallImage(config.wall.wallImage);
+                if (config.wall.wallPosition !== undefined) setWallPosition(config.wall.wallPosition);
+                if (config.wall.wallScale !== undefined) setWallScale(config.wall.wallScale);
+                if (config.wall.wallRotation !== undefined) setWallRotation(config.wall.wallRotation);
+                if (config.wall.wallShadow !== undefined) setWallShadow(config.wall.wallShadow);
+            }
+
+            const targetStage = config.stageIdx ?? config.activeIdx;
+            if (typeof targetStage === "number" && setActiveIdx) {
+                setActiveIdx(targetStage);
+            } else if (setActiveIdx && config.backplate) {
+                if (config.material) {
+                    setActiveIdx(3);
+                } else {
+                    setActiveIdx(1);
+                }
+            }
+
+            return { success: true, config };
+        } catch (err) {
+            console.error("Error loading board configuration:", err);
+            return { success: false, error: err.message };
+        }
+    };
+
+    /** Import configuration from an uploaded File object */
+    const importConfigFile = (file) => {
+        return new Promise((resolve, reject) => {
+            if (!file) {
+                const err = new Error("No file selected.");
+                return reject(err);
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const text = e.target?.result;
+                    const result = loadConfiguration(text);
+                    if (result.success) {
+                        resolve(result);
+                    } else {
+                        reject(new Error(result.error));
+                    }
+                } catch (err) {
+                    reject(err);
+                }
+            };
+            reader.onerror = () => reject(new Error("Failed to read file."));
+            reader.readAsText(file);
+        });
+    };
+
+    // Attach to window for convenient console testing & debugging
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            window.__boardConfig = {
+                exportConfiguration,
+                downloadConfiguration,
+                loadConfiguration,
+                importConfigFile,
+            };
+        }
+    }, [
+        backplate,
+        slots,
+        componentIds,
+        components,
+        material,
+        activeSlot,
+        wallImage,
+        wallPosition,
+        wallScale,
+        wallRotation,
+        wallShadow,
+        activeIdx,
+    ]);
+
     return (
         <boardContext.Provider value={{ 
             backplate, selectBackplate,
@@ -249,7 +393,11 @@ export default function BoardContext({ children }) {
             wallRotation, setWallRotation,
             wallShadow, setWallShadow,
             resetWallTransform,
-            isStageComplete }}>
+            isStageComplete,
+            exportConfiguration,
+            downloadConfiguration,
+            loadConfiguration,
+            importConfigFile }}>
             {children}
         </boardContext.Provider>
     );

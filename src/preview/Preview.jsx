@@ -1,5 +1,5 @@
 import { useContext, useState, useRef, useEffect } from "react";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, Download, Upload } from "lucide-react";
 import { boardContext } from "../context/board";
 import { sidebarContext } from "../context/sidebar";
 import styles from "./Preview.module.css";
@@ -8,13 +8,29 @@ import OtherComponent from "./OtherComponent";
 import WallVisualizer from "./WallVisualizer";
 
 export default function Preview() {
-    const { backplate, componentIds, components, material } = useContext(boardContext);
+    const {
+        backplate,
+        componentIds,
+        components,
+        material,
+        downloadConfiguration,
+        importConfigFile,
+    } = useContext(boardContext);
     const { activeIdx } = useContext(sidebarContext) || {};
 
-    // If on Step 6 (Wall Placement / Room Visualizer), render WallVisualizer
-    if (activeIdx === 5) {
-        return <WallVisualizer />;
-    }
+    const jsonFileInputRef = useRef(null);
+
+    const handleLoadJson = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+            await importConfigFile(file);
+        } catch (err) {
+            alert("Failed to load configuration JSON: " + err.message);
+        } finally {
+            e.target.value = "";
+        }
+    };
 
     const [zoom, setZoom] = useState(1);
 
@@ -86,6 +102,11 @@ export default function Preview() {
         setZoom(1);
     };
 
+    // If on Step 6 (Wall Placement / Room Visualizer), render WallVisualizer
+    if (activeIdx === 5) {
+        return <WallVisualizer />;
+    }
+
     return (
         <div ref={containerRef} className={styles.preview}>
             <div
@@ -146,6 +167,36 @@ export default function Preview() {
                         </div>
                     </div>
                 )}
+            </div>
+
+            {/* JSON Configuration quick test controls */}
+            <div className={styles.configTestControls}>
+                <input
+                    ref={jsonFileInputRef}
+                    type="file"
+                    accept=".json,application/json"
+                    style={{ display: "none" }}
+                    onChange={handleLoadJson}
+                />
+                <button
+                    type="button"
+                    className={styles.configTestBtn}
+                    onClick={() => downloadConfiguration()}
+                    disabled={!backplate}
+                    title="Download Board Configuration as JSON"
+                >
+                    <Download size={13} />
+                    <span>Save JSON</span>
+                </button>
+                <button
+                    type="button"
+                    className={styles.configTestBtn}
+                    onClick={() => jsonFileInputRef.current?.click()}
+                    title="Load Board Configuration from JSON"
+                >
+                    <Upload size={13} />
+                    <span>Load JSON</span>
+                </button>
             </div>
 
             {/* Bottom right zoom toolbar */}
