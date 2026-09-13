@@ -210,17 +210,15 @@ export default function ExportSelector() {
             if (breakdown.backplateItem) {
                 rowsHtml += `
                     <tr>
-                        <td style="text-align: center; color: #6b7280;">${serialNo++}</td>
+                        <td style="text-align:center;color:#9ca3af;">${serialNo++}</td>
                         <td>
-                            <strong>${breakdown.backplateItem.name}</strong>
-                            <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">
-                                Modular Backplate Mounting Unit • ${breakdown.backplateItem.slots} slots • ${breakdown.backplateItem.rows} row${breakdown.backplateItem.rows > 1 ? "s" : ""}
-                            </div>
+                            <span class="item-name">${breakdown.backplateItem.name}</span>
+                            <span class="item-sub">Modular Backplate · ${breakdown.backplateItem.slots} slots · ${breakdown.backplateItem.rows} row${breakdown.backplateItem.rows > 1 ? "s" : ""}</span>
                         </td>
-                        <td style="color: #4b5563; font-size: 12px;">Backplate</td>
-                        <td style="text-align: center; font-weight: 600;">1</td>
-                        <td style="text-align: right;">${formatPrice(breakdown.backplateItem.unitPrice)}</td>
-                        <td style="text-align: right; font-weight: 600;">${formatPrice(breakdown.backplateItem.unitPrice)}</td>
+                        <td class="cat-cell">Backplate</td>
+                        <td style="text-align:center;">1</td>
+                        <td style="text-align:right;">${formatPrice(breakdown.backplateItem.unitPrice)}</td>
+                        <td class="amount-cell">${formatPrice(breakdown.backplateItem.unitPrice)}</td>
                     </tr>
                 `;
             }
@@ -234,17 +232,15 @@ export default function ExportSelector() {
 
                 rowsHtml += `
                     <tr>
-                        <td style="text-align: center; color: #6b7280;">${serialNo++}</td>
+                        <td style="text-align:center;color:#9ca3af;">${serialNo++}</td>
                         <td>
-                            <strong>${item.name}</strong>
-                            <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">
-                                ${specLabel}
-                            </div>
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-sub">${specLabel}</span>
                         </td>
-                        <td style="color: #4b5563; font-size: 12px;">${catLabel}</td>
-                        <td style="text-align: center; font-weight: 600;">${item.count}</td>
-                        <td style="text-align: right;">${formatPrice(item.unitPrice)}</td>
-                        <td style="text-align: right; font-weight: 600;">${formatPrice(item.totalPrice)}</td>
+                        <td class="cat-cell">${catLabel}</td>
+                        <td style="text-align:center;">${item.count}</td>
+                        <td style="text-align:right;">${formatPrice(item.unitPrice)}</td>
+                        <td class="amount-cell">${formatPrice(item.totalPrice)}</td>
                     </tr>
                 `;
             }
@@ -253,17 +249,15 @@ export default function ExportSelector() {
             if (breakdown.materialItem && breakdown.materialItem.unitPrice > 0) {
                 rowsHtml += `
                     <tr>
-                        <td style="text-align: center; color: #6b7280;">${serialNo++}</td>
+                        <td style="text-align:center;color:#9ca3af;">${serialNo++}</td>
                         <td>
-                            <strong>${breakdown.materialItem.name} Finish</strong>
-                            <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">
-                                Custom Surface Finish Treatment
-                            </div>
+                            <span class="item-name">${breakdown.materialItem.name} Finish</span>
+                            <span class="item-sub">Custom Surface Finish Treatment</span>
                         </td>
-                        <td style="color: #4b5563; font-size: 12px;">Surface Finish</td>
-                        <td style="text-align: center; font-weight: 600;">1</td>
-                        <td style="text-align: right;">${formatPrice(breakdown.materialItem.unitPrice)}</td>
-                        <td style="text-align: right; font-weight: 600;">${formatPrice(breakdown.materialItem.unitPrice)}</td>
+                        <td class="cat-cell">Surface Finish</td>
+                        <td style="text-align:center;">1</td>
+                        <td style="text-align:right;">${formatPrice(breakdown.materialItem.unitPrice)}</td>
+                        <td class="amount-cell">${formatPrice(breakdown.materialItem.unitPrice)}</td>
                     </tr>
                 `;
             }
@@ -280,351 +274,374 @@ export default function ExportSelector() {
                 }
             }
 
-            // Assemble company contact details
-            const contactPartsRow1 = [];
-            if (COMPANY_INFO?.gstin) contactPartsRow1.push(`<strong>GSTIN:</strong> ${COMPANY_INFO.gstin}`);
-            if (COMPANY_INFO?.email) contactPartsRow1.push(`<strong>Email:</strong> ${COMPANY_INFO.email}`);
-
-            const contactPartsRow2 = [];
-            if (COMPANY_INFO?.phone) contactPartsRow2.push(`<strong>Phone:</strong> ${COMPANY_INFO.phone}`);
-            if (COMPANY_INFO?.website) contactPartsRow2.push(`<strong>Web:</strong> ${COMPANY_INFO.website}`);
-
-            const contactLines = [
-                contactPartsRow1.length > 0 ? contactPartsRow1.join(" &bull; ") : "",
-                contactPartsRow2.length > 0 ? contactPartsRow2.join(" &bull; ") : "",
-                COMPANY_INFO?.address ? `<span>${COMPANY_INFO.address}</span>` : "",
-            ].filter(Boolean);
-            const contactDetailsHtml = contactLines.join("<br/>");
+            const contactParts = [];
+            if (COMPANY_INFO?.email) contactParts.push(COMPANY_INFO.email);
+            if (COMPANY_INFO?.phone) contactParts.push(COMPANY_INFO.phone);
+            if (COMPANY_INFO?.website) contactParts.push(COMPANY_INFO.website);
 
             const docTitle = COMPANY_INFO?.quotationTitle || "QUOTATION";
-            const docSubtitle = COMPANY_INFO?.quotationSubtitle || "PROFORMA ESTIMATE / BILL";
             const docValidity = COMPANY_INFO?.validity || "30 Days";
             const companyName = COMPANY_INFO?.name || "BELLATEQ SMART LIVING";
+            const companyTagline = COMPANY_INFO?.tagline || "";
+            const companyGstin = COMPANY_INFO?.gstin || "";
+            const companyAddress = COMPANY_INFO?.address || "";
+
+            // Auto-generate a quote reference number
+            const refNum = `Q-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}-${String(Math.floor(1000 + Math.random() * 9000))}`;
 
             const printContent = `
                 <!DOCTYPE html>
                 <html>
                 <head>
                     <meta charset="utf-8" />
-                    <title>${companyName ? `${companyName} - Quotation` : "Board Quotation"}</title>
+                    <title>${companyName} — ${docTitle}</title>
                     <style>
-                        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap');
-                        
+                        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
                         @page {
                             size: A4 portrait;
-                            margin: 10mm 12mm;
+                            margin: 14mm 16mm 20mm 16mm;
                         }
 
-                        * {
-                            box-sizing: border-box;
-                            margin: 0;
-                            padding: 0;
-                        }
+                        * { box-sizing: border-box; margin: 0; padding: 0; }
+
                         body {
-                            font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
                             background: #ffffff;
-                            color: #1f2937;
-                            padding: 20px 24px;
-                            font-size: 12px;
-                            line-height: 1.4;
-                            max-width: 860px;
+                            color: #1a1a2e;
+                            font-size: 11.5px;
+                            line-height: 1.5;
+                            max-width: 820px;
                             margin: 0 auto;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
                         }
 
-                        /* Header Bar */
-                        .header-table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin-bottom: 0;
+                        /* ── Header ──────────────────────────── */
+                        .header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: flex-start;
+                            padding-bottom: 16px;
+                            border-bottom: 2px solid #1a1a2e;
+                            margin-bottom: 18px;
                         }
-                        .header-left {
-                            vertical-align: top;
-                            text-align: left;
-                            width: 58%;
-                        }
-                        .brand-logo-img {
-                            height: 46px;
+                        .logo-img {
+                            height: 38px;
                             width: auto;
-                            max-width: 220px;
+                            max-width: 170px;
                             object-fit: contain;
-                            filter: brightness(0);
-                            margin-bottom: 4px;
                             display: block;
+                            margin-bottom: 7px;
+                            filter: brightness(0);
                         }
-                        .company-subname {
-                            font-size: 10.5px;
-                            font-weight: 800;
-                            letter-spacing: 0.08em;
-                            color: #1e293b;
-                            margin-bottom: 2px;
+                        .company-name {
+                            font-size: 11.5px;
+                            font-weight: 700;
+                            letter-spacing: 0.07em;
                             text-transform: uppercase;
+                            color: #111827;
+                            margin-bottom: 2px;
                         }
-                        .company-details {
+                        .company-tagline {
                             font-size: 10px;
-                            color: #64748b;
-                            line-height: 1.45;
+                            color: #6b7280;
+                            margin-bottom: 5px;
                         }
-                        .company-details strong {
-                            color: #334155;
+                        .company-contact {
+                            font-size: 9.5px;
+                            color: #9ca3af;
+                            line-height: 1.7;
                         }
-                        .header-right {
-                            vertical-align: top;
-                            text-align: right;
-                            width: 42%;
+                        .header-right { text-align: right; }
+                        .doc-eyebrow {
+                            font-size: 9px;
+                            font-weight: 600;
+                            letter-spacing: 0.14em;
+                            text-transform: uppercase;
+                            color: #9ca3af;
+                            margin-bottom: 3px;
                         }
                         .doc-title {
-                            font-size: 22px;
-                            font-weight: 900;
-                            color: #0f172a;
-                            letter-spacing: 0.06em;
-                            text-transform: uppercase;
-                            line-height: 1.1;
-                        }
-                        .doc-subtitle {
-                            font-size: 9px;
+                            font-size: 28px;
                             font-weight: 700;
-                            letter-spacing: 0.1em;
-                            color: #94a3b8;
+                            color: #111827;
+                            letter-spacing: -0.02em;
+                            line-height: 1;
+                            margin-bottom: 12px;
+                        }
+                        .meta-table { margin-left: auto; border-collapse: collapse; }
+                        .meta-table td { padding: 2px 0 2px 14px; font-size: 10px; }
+                        .meta-key {
+                            color: #9ca3af;
+                            font-weight: 500;
                             text-transform: uppercase;
-                            margin-top: 2px;
-                            margin-bottom: 6px;
-                        }
-                        .meta-grid-table {
-                            margin-left: auto;
-                            border-collapse: collapse;
-                            font-size: 11px;
-                        }
-                        .meta-grid-table td {
-                            padding: 2px 0 2px 8px;
-                        }
-                        .meta-th {
+                            letter-spacing: 0.06em;
                             text-align: right;
-                            color: #64748b;
+                        }
+                        .meta-val {
+                            color: #111827;
                             font-weight: 600;
-                            font-size: 10px;
-                            text-transform: uppercase;
-                            letter-spacing: 0.04em;
-                        }
-                        .meta-td {
                             text-align: right;
-                            color: #0f172a;
-                        }
-                        .header-divider {
-                            height: 1.5px;
-                            background: linear-gradient(90deg, #0f172a 0%, #cbd5e1 100%);
-                            margin: 10px 0 14px 0;
                         }
 
-                        /* Visual Preview Section */
-                        .visual-section {
-                            background: #fafafa;
+                        /* ── Info strip ───────────────────────── */
+                        .info-strip {
+                            display: flex;
+                            justify-content: space-between;
+                            background: #f9fafb;
                             border: 1px solid #e5e7eb;
-                            border-radius: 8px;
-                            padding: 8px 12px;
-                            margin-bottom: 12px;
-                            text-align: center;
-                        }
-                        .visual-title {
+                            border-radius: 4px;
+                            padding: 7px 12px;
+                            margin-bottom: 20px;
                             font-size: 10px;
-                            font-weight: 700;
-                            text-transform: uppercase;
-                            letter-spacing: 0.06em;
                             color: #6b7280;
-                            text-align: left;
-                            margin-bottom: 4px;
                         }
-                        .visual-image {
-                            max-height: 120px;
+                        .info-strip strong { color: #374151; font-weight: 600; }
+
+                        /* ── Board preview ────────────────────── */
+                        .preview-block {
+                            margin-bottom: 20px;
+                            border: 1px solid #e5e7eb;
+                            border-radius: 5px;
+                            overflow: hidden;
+                        }
+                        .preview-label {
+                            background: #f3f4f6;
+                            border-bottom: 1px solid #e5e7eb;
+                            padding: 5px 12px;
+                            font-size: 9.5px;
+                            font-weight: 600;
+                            letter-spacing: 0.09em;
+                            text-transform: uppercase;
+                            color: #6b7280;
+                        }
+                        .preview-inner { padding: 14px; text-align: center; }
+                        .preview-img {
+                            max-height: 130px;
                             max-width: 100%;
                             object-fit: contain;
-                            margin: 0 auto;
                             display: block;
-                            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.08));
+                            margin: 0 auto;
                         }
 
-                        /* BOM Table */
-                        .section-heading {
-                            font-size: 12px;
+                        /* ── Section label ────────────────────── */
+                        .section-label {
+                            font-size: 9.5px;
                             font-weight: 700;
+                            letter-spacing: 0.1em;
                             text-transform: uppercase;
-                            letter-spacing: 0.04em;
-                            color: #111827;
-                            margin-bottom: 6px;
+                            color: #374151;
+                            border-bottom: 1px solid #e5e7eb;
+                            padding-bottom: 5px;
+                            margin-bottom: 0;
                         }
+
+                        /* ── BOM Table ────────────────────────── */
                         .bom-table {
                             width: 100%;
                             border-collapse: collapse;
-                            margin-bottom: 10px;
+                            margin-bottom: 18px;
                         }
+                        .bom-table thead tr { background: #111827; }
                         .bom-table th {
-                            background: #f3f4f6;
-                            color: #374151;
-                            font-size: 10.5px;
-                            font-weight: 700;
+                            color: #f9fafb;
+                            font-size: 9.5px;
+                            font-weight: 600;
                             text-transform: uppercase;
-                            letter-spacing: 0.04em;
-                            padding: 6px 10px;
-                            border-top: 1px solid #e5e7eb;
-                            border-bottom: 1.5px solid #d1d5db;
+                            letter-spacing: 0.07em;
+                            padding: 8px 10px;
                             text-align: left;
                         }
                         .bom-table td {
-                            padding: 6px 10px;
-                            border-bottom: 1px solid #e5e7eb;
+                            padding: 7px 10px;
                             font-size: 11px;
                             color: #1f2937;
+                            border-bottom: 1px solid #f0f0f2;
+                            vertical-align: top;
                         }
-                        .bom-table tr:nth-child(even) {
-                            background: #fafafa;
-                        }
+                        .bom-table tbody tr:nth-child(even) td { background: #fafafa; }
+                        .item-name { display: block; font-weight: 600; color: #111827; }
+                        .item-sub { display: block; font-size: 10px; color: #9ca3af; margin-top: 1px; }
+                        .cat-cell { color: #6b7280; font-size: 10.5px; }
+                        .amount-cell { text-align: right; font-weight: 600; color: #111827; }
 
-                        /* Summary Box */
-                        .summary-wrapper {
-                            display: flex;
-                            justify-content: flex-end;
-                            margin-top: 6px;
-                        }
-                        .summary-card {
-                            width: 290px;
-                            background: #ffffff;
+                        /* ── Summary ──────────────────────────── */
+                        .summary-wrap { display: flex; justify-content: flex-end; }
+                        .summary-box {
+                            width: 276px;
                             border: 1px solid #e5e7eb;
-                            border-radius: 6px;
-                            padding: 8px 12px;
+                            border-radius: 5px;
+                            overflow: hidden;
                         }
-                        .sum-row {
+                        .summary-header {
+                            background: #f3f4f6;
+                            border-bottom: 1px solid #e5e7eb;
+                            padding: 6px 14px;
+                            font-size: 9.5px;
+                            font-weight: 700;
+                            letter-spacing: 0.09em;
+                            text-transform: uppercase;
+                            color: #6b7280;
+                        }
+                        .summary-body { padding: 10px 14px 12px; }
+                        .s-row {
                             display: flex;
                             justify-content: space-between;
                             font-size: 11px;
-                            margin-bottom: 4px;
-                            color: #4b5563;
+                            color: #6b7280;
+                            margin-bottom: 5px;
                         }
-                        .sum-val {
-                            font-weight: 600;
-                            color: #111827;
-                        }
-                        .discount-row {
-                            color: #16a34a;
-                            font-weight: 600;
-                        }
-                        .divider {
-                            height: 1px;
-                            background: #e5e7eb;
-                            margin: 5px 0;
-                        }
-                        .grand-total-row {
+                        .s-val { font-weight: 600; color: #374151; }
+                        .s-row.s-discount { color: #166534; }
+                        .s-rule { height: 1px; background: #e5e7eb; margin: 8px 0; }
+                        .s-total {
                             display: flex;
                             justify-content: space-between;
-                            align-items: center;
-                            font-size: 13.5px;
-                            font-weight: 800;
+                            align-items: baseline;
+                            font-size: 14px;
+                            font-weight: 700;
                             color: #111827;
-                            padding-top: 2px;
+                        }
+
+                        /* ── Notes ────────────────────────────── */
+                        .notes-section {
+                            margin-top: 28px;
+                            padding-top: 14px;
+                            border-top: 1px solid #e5e7eb;
+                        }
+                        .notes-title {
+                            font-size: 9.5px;
+                            font-weight: 700;
+                            letter-spacing: 0.09em;
+                            text-transform: uppercase;
+                            color: #6b7280;
+                            margin-bottom: 5px;
+                        }
+                        .notes-list { list-style: none; }
+                        .notes-list li {
+                            font-size: 9.5px;
+                            color: #9ca3af;
+                            line-height: 1.7;
+                            padding-left: 12px;
+                            position: relative;
+                        }
+                        .notes-list li::before { content: "–"; position: absolute; left: 0; }
+
+                        /* ── Print footer ─────────────────────── */
+                        .page-footer {
+                            position: fixed;
+                            bottom: 0; left: 0; right: 0;
+                            border-top: 1px solid #e5e7eb;
+                            padding: 5px 16mm;
+                            display: flex;
+                            justify-content: space-between;
+                            font-size: 9px;
+                            color: #9ca3af;
+                            background: #fff;
                         }
 
                         @media print {
-                            html, body {
-                                padding: 0 !important;
-                                margin: 0 !important;
-                                max-width: 100% !important;
-                            }
-                            .visual-section {
-                                break-inside: avoid;
-                            }
-                            .summary-wrapper {
-                                break-inside: avoid;
-                            }
+                            html, body { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
+                            .preview-block, .summary-wrap, .notes-section { break-inside: avoid; }
                         }
                     </style>
                 </head>
                 <body>
-                    <!-- Professional Quotation / Bill Header -->
-                    <table class="header-table">
-                        <tr>
-                            <td class="header-left">
-                                ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="brand-logo-img" />` : ""}
-                                ${companyName ? `<div class="company-subname">${companyName}</div>` : ""}
-                                ${contactDetailsHtml ? `<div class="company-details">${contactDetailsHtml}</div>` : ""}
-                            </td>
-                            <td class="header-right">
-                                <div class="doc-title">${docTitle}</div>
-                                <div class="doc-subtitle">${docSubtitle}</div>
-                                <table class="meta-grid-table">
-                                    <tr>
-                                        <td class="meta-th">Date:</td>
-                                        <td class="meta-td">${dateString}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="meta-th">Validity:</td>
-                                        <td class="meta-td">${docValidity}</td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <div class="header-divider"></div>
-
-                    <!-- Switchboard Visual Design Preview -->
-                    ${boardImageDataUrl ? `
-                        <div class="visual-section">
-                            <div class="visual-title">Board Preview</div>
-                            <img class="visual-image" src="${boardImageDataUrl}" alt="Board Preview" />
+                    <!-- Header -->
+                    <div class="header">
+                        <div>
+                            ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="logo-img" />` : ""}
+                            ${!logoUrl ? `<div class="company-name">${companyName}</div>` : ""}
+                            ${companyTagline ? `<div class="company-tagline">${companyTagline}</div>` : ""}
+                            <div class="company-contact">${contactParts.join(" &nbsp;·&nbsp; ")}</div>
                         </div>
-                    ` : ""}
+                        <div class="header-right">
+                            <div class="doc-eyebrow">Document</div>
+                            <div class="doc-title">${docTitle}</div>
+                            <table class="meta-table">
+                                <tr><td class="meta-key">Ref No.</td><td class="meta-val">${refNum}</td></tr>
+                                <tr><td class="meta-key">Date</td><td class="meta-val">${dateString}</td></tr>
+                                <tr><td class="meta-key">Valid For</td><td class="meta-val">${docValidity}</td></tr>
+                            </table>
+                        </div>
+                    </div>
 
-                    <!-- Itemized Bill of Materials (BOM) -->
-                    <div class="section-heading">Bill of Materials (BOM)</div>
+                    <!-- Info strip -->
+                    ${(companyGstin || companyAddress) ? `
+                    <div class="info-strip">
+                        ${companyGstin ? `<span><strong>GSTIN:</strong>&nbsp;${companyGstin}</span>` : "<span></span>"}
+                        ${companyAddress ? `<span>${companyAddress}</span>` : ""}
+                    </div>` : ""}
+
+                    <!-- Board Preview -->
+                    ${boardImageDataUrl ? `
+                    <div class="preview-block">
+                        <div class="preview-label">Board Design Preview</div>
+                        <div class="preview-inner">
+                            <img class="preview-img" src="${boardImageDataUrl}" alt="Board Preview" />
+                        </div>
+                    </div>` : ""}
+
+                    <!-- BOM -->
+                    <div class="section-label">Bill of Materials</div>
                     <table class="bom-table">
                         <thead>
                             <tr>
-                                <th style="width: 6%; text-align: center;">#</th>
-                                <th style="width: 44%;">Item Description</th>
-                                <th style="width: 18%;">Category</th>
-                                <th style="width: 8%; text-align: center;">Qty</th>
-                                <th style="width: 12%; text-align: right;">Unit Rate</th>
-                                <th style="width: 12%; text-align: right;">Amount</th>
+                                <th style="width:5%;text-align:center;">#</th>
+                                <th style="width:43%;">Description</th>
+                                <th style="width:16%;">Category</th>
+                                <th style="width:8%;text-align:center;">Qty</th>
+                                <th style="width:13%;text-align:right;">Unit Rate</th>
+                                <th style="width:15%;text-align:right;">Amount</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            ${rowsHtml}
-                        </tbody>
+                        <tbody>${rowsHtml}</tbody>
                     </table>
 
-                    <!-- Financial Summary -->
-                    <div class="summary-wrapper">
-                        <div class="summary-card">
-                            <div class="sum-row">
-                                <span>Gross Subtotal:</span>
-                                <span class="sum-val">${formatPrice(breakdown.rawSubtotal)}</span>
-                            </div>
-                            ${breakdown.discountAmount > 0 ? `
-                                <div class="sum-row discount-row">
-                                    <span>Discount ${breakdown.discount.type === "percent" ? `(${breakdown.discount.value}%)` : "(Flat)"}:</span>
-                                    <span>-${formatPrice(breakdown.discountAmount)}</span>
+                    <!-- Summary -->
+                    <div class="summary-wrap">
+                        <div class="summary-box">
+                            <div class="summary-header">Price Summary</div>
+                            <div class="summary-body">
+                                <div class="s-row"><span>Gross Subtotal</span><span class="s-val">${formatPrice(breakdown.rawSubtotal)}</span></div>
+                                ${breakdown.discountAmount > 0 ? `
+                                <div class="s-row s-discount">
+                                    <span>Discount ${breakdown.discount.type === "percent" ? `(${breakdown.discount.value}%)` : "(Flat)"}</span>
+                                    <span>− ${formatPrice(breakdown.discountAmount)}</span>
+                                </div>` : ""}
+                                ${breakdown.miscCostAmount > 0 ? `
+                                <div class="s-row"><span>Other / Delivery Charges</span><span class="s-val">+ ${formatPrice(breakdown.miscCostAmount)}</span></div>` : ""}
+                                ${(breakdown.discountAmount > 0 || breakdown.miscCostAmount > 0) ? `
+                                <div class="s-row"><span>Taxable Amount</span><span class="s-val">${formatPrice(breakdown.taxableAmount)}</span></div>` : ""}
+                                <div class="s-row">
+                                    <span>GST (${breakdown.gstRate}%)</span>
+                                    <span class="s-val">${breakdown.gstAmount > 0 ? `+ ${formatPrice(breakdown.gstAmount)}` : "Nil"}</span>
                                 </div>
-                            ` : ""}
-                            ${breakdown.miscCostAmount > 0 ? `
-                                <div class="sum-row">
-                                    <span>Other / Delivery Charges:</span>
-                                    <span class="sum-val">+${formatPrice(breakdown.miscCostAmount)}</span>
+                                <div class="s-rule"></div>
+                                <div class="s-total">
+                                    <span>Total Amount</span>
+                                    <span>${formatPrice(breakdown.finalTotal)}</span>
                                 </div>
-                            ` : ""}
-                            ${(breakdown.discountAmount > 0 || breakdown.miscCostAmount > 0) ? `
-                                <div class="sum-row">
-                                    <span>Taxable Subtotal:</span>
-                                    <span class="sum-val">${formatPrice(breakdown.taxableAmount)}</span>
-                                </div>
-                            ` : ""}
-                            <div class="sum-row">
-                                <span>GST (${breakdown.gstRate}%):</span>
-                                <span class="sum-val">${breakdown.gstAmount > 0 ? `+${formatPrice(breakdown.gstAmount)}` : "₹0.00 (0%)"}</span>
-                            </div>
-                            <div class="divider"></div>
-                            <div class="grand-total-row">
-                                <span>Total Amount:</span>
-                                <span>${formatPrice(breakdown.finalTotal)}</span>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="notes-section">
+                        <div class="notes-title">Terms &amp; Conditions</div>
+                        <ul class="notes-list">
+                            <li>This quotation is valid for <strong style="color:#6b7280">${docValidity}</strong> from the date of issue.</li>
+                            <li>Prices are subject to change without prior notice after the validity period.</li>
+                            <li>All prices are inclusive of applicable taxes unless stated otherwise.</li>
+                            <li>This is a system-generated document and does not require a physical signature.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Page Footer -->
+                    <div class="page-footer">
+                        <span>${companyName}</span>
+                        <span>${refNum} &nbsp;·&nbsp; ${dateString}</span>
                     </div>
                 </body>
                 </html>

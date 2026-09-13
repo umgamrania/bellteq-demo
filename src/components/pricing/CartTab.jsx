@@ -298,7 +298,6 @@ export default function CartTab({ onSwitchToBreakdown }) {
             const today = new Date();
             const dateString = today.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
-            // Resolve company logo
             let logoUrl = "";
             if (COMPANY_INFO?.logoSrc) {
                 const rawLogo = COMPANY_INFO.logoSrc.trim();
@@ -309,25 +308,20 @@ export default function CartTab({ onSwitchToBreakdown }) {
                 }
             }
 
-            const contactPartsRow1 = [];
-            if (COMPANY_INFO?.gstin) contactPartsRow1.push(`<strong>GSTIN:</strong> ${COMPANY_INFO.gstin}`);
-            if (COMPANY_INFO?.email) contactPartsRow1.push(`<strong>Email:</strong> ${COMPANY_INFO.email}`);
-            const contactPartsRow2 = [];
-            if (COMPANY_INFO?.phone) contactPartsRow2.push(`<strong>Phone:</strong> ${COMPANY_INFO.phone}`);
-            if (COMPANY_INFO?.website) contactPartsRow2.push(`<strong>Web:</strong> ${COMPANY_INFO.website}`);
-            const contactLines = [
-                contactPartsRow1.length > 0 ? contactPartsRow1.join(" &bull; ") : "",
-                contactPartsRow2.length > 0 ? contactPartsRow2.join(" &bull; ") : "",
-                COMPANY_INFO?.address ? `<span>${COMPANY_INFO.address}</span>` : "",
-            ].filter(Boolean);
-            const contactDetailsHtml = contactLines.join("<br/>");
+            const contactParts = [];
+            if (COMPANY_INFO?.email) contactParts.push(COMPANY_INFO.email);
+            if (COMPANY_INFO?.phone) contactParts.push(COMPANY_INFO.phone);
+            if (COMPANY_INFO?.website) contactParts.push(COMPANY_INFO.website);
 
             const docTitle = COMPANY_INFO?.quotationTitle || "QUOTATION";
-            const docSubtitle = COMPANY_INFO?.quotationSubtitle || "PROFORMA ESTIMATE / BILL";
             const docValidity = COMPANY_INFO?.validity || "30 Days";
             const companyName = COMPANY_INFO?.name || "BELLATEQ SMART LIVING";
+            const companyTagline = COMPANY_INFO?.tagline || "";
+            const companyGstin = COMPANY_INFO?.gstin || "";
+            const companyAddress = COMPANY_INFO?.address || "";
 
-            // Build one section per board (raw BOM only, no tax summary per board)
+            const refNum = `Q-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}-${String(Math.floor(1000 + Math.random() * 9000))}`;
+
             let boardSectionsHtml = "";
             let combinedRawSubtotal = 0;
 
@@ -343,14 +337,15 @@ export default function CartTab({ onSwitchToBreakdown }) {
                 if (bd.backplateItem) {
                     rowsHtml += `
                         <tr>
-                            <td style="text-align:center;color:#6b7280">${serialNo++}</td>
-                            <td><strong>${bd.backplateItem.name}</strong>
-                                <div style="font-size:11px;color:#6b7280;margin-top:2px">Modular Backplate · ${bd.backplateItem.slots} slots · ${bd.backplateItem.rows} row${bd.backplateItem.rows > 1 ? "s" : ""}</div>
+                            <td style="text-align:center;color:#9ca3af;">${serialNo++}</td>
+                            <td>
+                                <span class="item-name">${bd.backplateItem.name}</span>
+                                <span class="item-sub">Modular Backplate · ${bd.backplateItem.slots} slots · ${bd.backplateItem.rows} row${bd.backplateItem.rows > 1 ? "s" : ""}</span>
                             </td>
-                            <td style="color:#4b5563;font-size:12px">Backplate</td>
-                            <td style="text-align:center;font-weight:600">1</td>
-                            <td style="text-align:right">${formatPrice(bd.backplateItem.unitPrice)}</td>
-                            <td style="text-align:right;font-weight:600">${formatPrice(bd.backplateItem.unitPrice)}</td>
+                            <td class="cat-cell">Backplate</td>
+                            <td style="text-align:center;">1</td>
+                            <td style="text-align:right;">${formatPrice(bd.backplateItem.unitPrice)}</td>
+                            <td class="amount-cell">${formatPrice(bd.backplateItem.unitPrice)}</td>
                         </tr>`;
                 }
 
@@ -361,109 +356,103 @@ export default function CartTab({ onSwitchToBreakdown }) {
                         : `${comp.slots} slot${comp.slots > 1 ? "s" : ""} per module`;
                     rowsHtml += `
                         <tr>
-                            <td style="text-align:center;color:#6b7280">${serialNo++}</td>
-                            <td><strong>${comp.name}</strong>
-                                <div style="font-size:11px;color:#6b7280;margin-top:2px">${specLabel}</div>
+                            <td style="text-align:center;color:#9ca3af;">${serialNo++}</td>
+                            <td>
+                                <span class="item-name">${comp.name}</span>
+                                <span class="item-sub">${specLabel}</span>
                             </td>
-                            <td style="color:#4b5563;font-size:12px">${catLabel}</td>
-                            <td style="text-align:center;font-weight:600">${comp.count}</td>
-                            <td style="text-align:right">${formatPrice(comp.unitPrice)}</td>
-                            <td style="text-align:right;font-weight:600">${formatPrice(comp.totalPrice)}</td>
+                            <td class="cat-cell">${catLabel}</td>
+                            <td style="text-align:center;">${comp.count}</td>
+                            <td style="text-align:right;">${formatPrice(comp.unitPrice)}</td>
+                            <td class="amount-cell">${formatPrice(comp.totalPrice)}</td>
                         </tr>`;
                 }
 
                 if (bd.materialItem && bd.materialItem.unitPrice > 0) {
                     rowsHtml += `
                         <tr>
-                            <td style="text-align:center;color:#6b7280">${serialNo++}</td>
-                            <td><strong>${bd.materialItem.name} Finish</strong>
-                                <div style="font-size:11px;color:#6b7280;margin-top:2px">Custom Surface Finish Treatment</div>
+                            <td style="text-align:center;color:#9ca3af;">${serialNo++}</td>
+                            <td>
+                                <span class="item-name">${bd.materialItem.name} Finish</span>
+                                <span class="item-sub">Custom Surface Finish Treatment</span>
                             </td>
-                            <td style="color:#4b5563;font-size:12px">Surface Finish</td>
-                            <td style="text-align:center;font-weight:600">1</td>
-                            <td style="text-align:right">${formatPrice(bd.materialItem.unitPrice)}</td>
-                            <td style="text-align:right;font-weight:600">${formatPrice(bd.materialItem.unitPrice)}</td>
+                            <td class="cat-cell">Surface Finish</td>
+                            <td style="text-align:center;">1</td>
+                            <td style="text-align:right;">${formatPrice(bd.materialItem.unitPrice)}</td>
+                            <td class="amount-cell">${formatPrice(bd.materialItem.unitPrice)}</td>
                         </tr>`;
                 }
 
                 boardSectionsHtml += `
                     <div class="board-section">
                         <div class="board-header">
-                            <span class="board-index">Board ${i + 1}</span>
+                            <span class="board-num">Board ${i + 1}</span>
                             <span class="board-name">${item.name}</span>
-                            <span class="board-subtotal">Subtotal: ${formatPrice(bd.rawSubtotal)}</span>
                         </div>
                         ${item.thumbnail ? `
-                        <div class="visual-section">
-                            <div class="visual-title">Board Preview</div>
-                            <img class="visual-image" src="${item.thumbnail}" alt="${item.name}" />
+                        <div class="preview-block">
+                            <div class="preview-label">Board Design Preview</div>
+                            <div class="preview-inner">
+                                <img class="preview-img" src="${item.thumbnail}" alt="${item.name}" />
+                            </div>
                         </div>` : ""}
-                        <div class="section-heading">Bill of Materials</div>
+                        <div class="section-label">Bill of Materials</div>
                         <table class="bom-table">
                             <thead>
                                 <tr>
-                                    <th style="width:6%;text-align:center">#</th>
-                                    <th style="width:44%">Item Description</th>
-                                    <th style="width:16%">Category</th>
-                                    <th style="width:8%;text-align:center">Qty</th>
-                                    <th style="width:13%;text-align:right">Unit Rate</th>
-                                    <th style="width:13%;text-align:right">Amount</th>
+                                    <th style="width:5%;text-align:center;">#</th>
+                                    <th style="width:43%;">Description</th>
+                                    <th style="width:16%;">Category</th>
+                                    <th style="width:8%;text-align:center;">Qty</th>
+                                    <th style="width:13%;text-align:right;">Unit Rate</th>
+                                    <th style="width:15%;text-align:right;">Amount</th>
                                 </tr>
                             </thead>
                             <tbody>${rowsHtml}</tbody>
                         </table>
-                        <div class="board-raw-total">
-                            Board Subtotal (before tax): <strong>${formatPrice(bd.rawSubtotal)}</strong>
+                        <div class="board-subtotal-row">
+                            Board Subtotal &nbsp;&mdash;&nbsp; <strong>${formatPrice(bd.rawSubtotal)}</strong>
                         </div>
                     </div>`;
             }
 
-            // Apply tax/discount/misc ONCE on the combined subtotal
             const cartTax = applyCartTax(combinedRawSubtotal, discount, gstRate, miscCost);
 
-            // Build per-board summary rows for the final section
             const boardSummaryRows = cartItems.map((item, i) => {
                 const cfg = item.config;
                 const bd = calculateBreakdown(cfg?.backplate, cfg?.components, cfg?.material);
-                return `<div class="sum-row"><span>Board ${i + 1} — ${item.name}:</span><span class="sum-val">${formatPrice(bd.rawSubtotal)}</span></div>`;
+                return `<div class="s-row"><span>Board ${i + 1} \u2014 ${item.name}</span><span class="s-val">${formatPrice(bd.rawSubtotal)}</span></div>`;
             }).join("");
 
-            const discountRow = cartTax.discountAmount > 0 ? `
-                <div class="sum-row discount-row">
-                    <span>Discount${discount.type === "percent" ? ` (${discount.value}%)` : " (Flat)"}:</span>
-                    <span>-${formatPrice(cartTax.discountAmount)}</span>
-                </div>` : "";
-
-            const miscRow = cartTax.miscCostAmount > 0 ? `
-                <div class="sum-row">
-                    <span>Other / Misc. Charges:</span>
-                    <span class="sum-val">+${formatPrice(cartTax.miscCostAmount)}</span>
-                </div>` : "";
-
-            const taxableRow = (cartTax.discountAmount > 0 || cartTax.miscCostAmount > 0) ? `
-                <div class="sum-row">
-                    <span>Taxable Subtotal:</span>
-                    <span class="sum-val">${formatPrice(cartTax.taxableAmount)}</span>
-                </div>` : "";
-
-            const grandTotalSection = `
-                <div class="grand-total-section">
-                    <div class="section-heading" style="margin-bottom:10px">Combined Quotation Summary</div>
-                    <div class="summary-card" style="max-width:340px;margin-left:auto">
-                        ${boardSummaryRows}
-                        <div class="divider" style="margin:6px 0"></div>
-                        <div class="sum-row"><span>Gross Subtotal (${cartItems.length} boards):</span><span class="sum-val">${formatPrice(combinedRawSubtotal)}</span></div>
-                        ${discountRow}
-                        ${miscRow}
-                        ${taxableRow}
-                        <div class="sum-row">
-                            <span>GST (${gstRate || 0}%):</span>
-                            <span class="sum-val">${cartTax.gstAmount > 0 ? `+${formatPrice(cartTax.gstAmount)}` : "₹0.00"}</span>
-                        </div>
-                        <div class="divider"></div>
-                        <div class="grand-total-row">
-                            <span>Grand Total:</span>
-                            <span>${formatPrice(cartTax.finalTotal)}</span>
+            const grandSummaryHtml = `
+                <div class="grand-summary-section">
+                    <div class="section-label" style="margin-bottom:14px;">Combined Quotation Summary</div>
+                    <div class="summary-wrap">
+                        <div class="summary-box">
+                            <div class="summary-header">Price Breakdown \u2014 ${cartItems.length} Board${cartItems.length !== 1 ? "s" : ""}</div>
+                            <div class="summary-body">
+                                ${boardSummaryRows}
+                                <div class="s-rule"></div>
+                                <div class="s-row"><span>Gross Subtotal</span><span class="s-val">${formatPrice(combinedRawSubtotal)}</span></div>
+                                ${cartTax.discountAmount > 0 ? `
+                                <div class="s-row s-discount">
+                                    <span>Discount${discount.type === "percent" ? ` (${discount.value}%)` : " (Flat)"}</span>
+                                    <span>\u2212 ${formatPrice(cartTax.discountAmount)}</span>
+                                </div>` : ""}
+                                ${cartTax.miscCostAmount > 0 ? `
+                                <div class="s-row"><span>Other / Misc. Charges</span><span class="s-val">+ ${formatPrice(cartTax.miscCostAmount)}</span></div>` : ""}
+                                ${(cartTax.discountAmount > 0 || cartTax.miscCostAmount > 0) ? `
+                                <div class="s-row"><span>Taxable Amount</span><span class="s-val">${formatPrice(cartTax.taxableAmount)}</span></div>` : ""}
+                                <div class="s-row">
+                                    <span>GST (${gstRate || 0}%)</span>
+                                    <span class="s-val">${cartTax.gstAmount > 0 ? `+ ${formatPrice(cartTax.gstAmount)}` : "Nil"}</span>
+                                </div>
+                                <div class="s-rule"></div>
+                                <div class="s-total">
+                                    <span>Grand Total</span>
+                                    <span>${formatPrice(cartTax.finalTotal)}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>`;
@@ -473,86 +462,115 @@ export default function CartTab({ onSwitchToBreakdown }) {
                 <html>
                 <head>
                     <meta charset="utf-8" />
-                    <title>${companyName} — Combined Quotation</title>
+                    <title>${companyName} \u2014 Combined ${docTitle}</title>
                     <style>
-                        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap');
-                        @page { size: A4 portrait; margin: 10mm 12mm; }
+                        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+                        @page { size: A4 portrait; margin: 14mm 16mm 20mm 16mm; }
                         * { box-sizing: border-box; margin: 0; padding: 0; }
                         body {
-                            font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                            background: #fff; color: #1f2937;
-                            padding: 20px 24px; font-size: 12px; line-height: 1.4;
-                            max-width: 860px; margin: 0 auto;
+                            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+                            background: #fff; color: #1a1a2e;
+                            font-size: 11.5px; line-height: 1.5;
+                            max-width: 820px; margin: 0 auto;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
                         }
-                        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
-                        .header-left { vertical-align: top; text-align: left; width: 58%; }
-                        .brand-logo-img { height: 46px; width: auto; max-width: 220px; object-fit: contain; filter: brightness(0); margin-bottom: 4px; display: block; }
-                        .company-subname { font-size: 10.5px; font-weight: 800; letter-spacing: .08em; color: #1e293b; margin-bottom: 2px; text-transform: uppercase; }
-                        .company-details { font-size: 10px; color: #64748b; line-height: 1.45; }
-                        .company-details strong { color: #334155; }
-                        .header-right { vertical-align: top; text-align: right; width: 42%; }
-                        .doc-title { font-size: 22px; font-weight: 900; color: #0f172a; letter-spacing: .06em; text-transform: uppercase; line-height: 1.1; }
-                        .doc-subtitle { font-size: 9px; font-weight: 700; letter-spacing: .1em; color: #94a3b8; text-transform: uppercase; margin-top: 2px; margin-bottom: 6px; }
-                        .meta-grid-table { margin-left: auto; border-collapse: collapse; font-size: 11px; }
-                        .meta-grid-table td { padding: 2px 0 2px 8px; }
-                        .meta-th { text-align: right; color: #64748b; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
-                        .meta-td { text-align: right; color: #0f172a; }
-                        .header-divider { height: 1.5px; background: linear-gradient(90deg,#0f172a 0%,#cbd5e1 100%); margin: 10px 0 20px 0; }
-
-                        .board-section { margin-bottom: 28px; page-break-after: always; }
-                        .board-section:last-of-type { page-break-after: avoid; }
-                        .board-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #111827; }
-                        .board-index { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #6b7280; }
-                        .board-name { font-size: 16px; font-weight: 700; color: #111827; flex: 1; }
-                        .board-subtotal { font-size: 12px; font-weight: 600; color: #4b5563; }
-                        .visual-section { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; text-align: center; }
-                        .visual-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #6b7280; text-align: left; margin-bottom: 4px; }
-                        .visual-image { max-height: 120px; max-width: 100%; object-fit: contain; margin: 0 auto; display: block; filter: drop-shadow(0 4px 10px rgba(0,0,0,.08)); }
-                        .section-heading { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #111827; margin-bottom: 6px; }
+                        .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 16px; border-bottom: 2px solid #1a1a2e; margin-bottom: 18px; }
+                        .logo-img { height: 38px; width: auto; max-width: 170px; object-fit: contain; display: block; margin-bottom: 7px; filter: brightness(0); }
+                        .company-name { font-size: 11.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #111827; margin-bottom: 2px; }
+                        .company-tagline { font-size: 10px; color: #6b7280; margin-bottom: 5px; }
+                        .company-contact { font-size: 9.5px; color: #9ca3af; line-height: 1.7; }
+                        .header-right { text-align: right; }
+                        .doc-eyebrow { font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #9ca3af; margin-bottom: 3px; }
+                        .doc-title { font-size: 28px; font-weight: 700; color: #111827; letter-spacing: -0.02em; line-height: 1; margin-bottom: 12px; }
+                        .meta-table { margin-left: auto; border-collapse: collapse; }
+                        .meta-table td { padding: 2px 0 2px 14px; font-size: 10px; }
+                        .meta-key { color: #9ca3af; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; text-align: right; }
+                        .meta-val { color: #111827; font-weight: 600; text-align: right; }
+                        .info-strip { display: flex; justify-content: space-between; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; padding: 7px 12px; margin-bottom: 22px; font-size: 10px; color: #6b7280; }
+                        .info-strip strong { color: #374151; font-weight: 600; }
+                        .board-section { margin-bottom: 32px; }
+                        .board-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1.5px solid #1a1a2e; }
+                        .board-num { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #9ca3af; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 6px; }
+                        .board-name { font-size: 15px; font-weight: 700; color: #111827; flex: 1; }
+                        .preview-block { margin-bottom: 14px; border: 1px solid #e5e7eb; border-radius: 5px; overflow: hidden; }
+                        .preview-label { background: #f3f4f6; border-bottom: 1px solid #e5e7eb; padding: 5px 12px; font-size: 9.5px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: #6b7280; }
+                        .preview-inner { padding: 12px; text-align: center; }
+                        .preview-img { max-height: 110px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto; }
+                        .section-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-bottom: 0; }
                         .bom-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
-                        .bom-table th { background: #f3f4f6; color: #374151; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 6px 10px; border-top: 1px solid #e5e7eb; border-bottom: 1.5px solid #d1d5db; text-align: left; }
-                        .bom-table td { padding: 6px 10px; border-bottom: 1px solid #e5e7eb; font-size: 11px; color: #1f2937; }
-                        .bom-table tr:nth-child(even) { background: #fafafa; }
-                        .board-raw-total { text-align: right; font-size: 12px; color: #4b5563; padding: 6px 0; }
-                        .board-raw-total strong { color: #111827; }
-
-                        .grand-total-section { margin-top: 32px; padding-top: 20px; border-top: 2px solid #111827; }
-                        .summary-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 16px; }
-                        .sum-row { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; color: #4b5563; }
-                        .sum-val { font-weight: 600; color: #111827; }
-                        .discount-row { color: #16a34a; font-weight: 600; }
-                        .divider { height: 1px; background: #e5e7eb; margin: 5px 0; }
-                        .grand-total-row { display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 800; color: #111827; padding-top: 4px; }
-
+                        .bom-table thead tr { background: #111827; }
+                        .bom-table th { color: #f9fafb; font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; padding: 8px 10px; text-align: left; }
+                        .bom-table td { padding: 7px 10px; font-size: 11px; color: #1f2937; border-bottom: 1px solid #f0f0f2; vertical-align: top; }
+                        .bom-table tbody tr:nth-child(even) td { background: #fafafa; }
+                        .item-name { display: block; font-weight: 600; color: #111827; }
+                        .item-sub { display: block; font-size: 10px; color: #9ca3af; margin-top: 1px; }
+                        .cat-cell { color: #6b7280; font-size: 10.5px; }
+                        .amount-cell { text-align: right; font-weight: 600; color: #111827; }
+                        .board-subtotal-row { text-align: right; font-size: 11px; color: #6b7280; padding: 6px 0 0; }
+                        .board-subtotal-row strong { color: #111827; }
+                        .grand-summary-section { margin-top: 16px; padding-top: 20px; border-top: 2px solid #1a1a2e; }
+                        .summary-wrap { display: flex; justify-content: flex-end; margin-top: 12px; }
+                        .summary-box { width: 310px; border: 1px solid #e5e7eb; border-radius: 5px; overflow: hidden; }
+                        .summary-header { background: #f3f4f6; border-bottom: 1px solid #e5e7eb; padding: 6px 14px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #6b7280; }
+                        .summary-body { padding: 10px 14px 12px; }
+                        .s-row { display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; margin-bottom: 5px; }
+                        .s-val { font-weight: 600; color: #374151; }
+                        .s-row.s-discount { color: #166534; }
+                        .s-rule { height: 1px; background: #e5e7eb; margin: 8px 0; }
+                        .s-total { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; font-weight: 700; color: #111827; }
+                        .notes-section { margin-top: 28px; padding-top: 14px; border-top: 1px solid #e5e7eb; }
+                        .notes-title { font-size: 9.5px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #6b7280; margin-bottom: 5px; }
+                        .notes-list { list-style: none; }
+                        .notes-list li { font-size: 9.5px; color: #9ca3af; line-height: 1.7; padding-left: 12px; position: relative; }
+                        .notes-list li::before { content: "\u2013"; position: absolute; left: 0; }
+                        .page-footer { position: fixed; bottom: 0; left: 0; right: 0; border-top: 1px solid #e5e7eb; padding: 5px 16mm; display: flex; justify-content: space-between; font-size: 9px; color: #9ca3af; background: #fff; }
                         @media print {
                             html, body { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
                             .board-section { break-inside: avoid; }
-                            .grand-total-section { break-inside: avoid; }
+                            .grand-summary-section { break-inside: avoid; }
                         }
                     </style>
                 </head>
                 <body>
-                    <table class="header-table">
-                        <tr>
-                            <td class="header-left">
-                                ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="brand-logo-img" />` : ""}
-                                ${companyName ? `<div class="company-subname">${companyName}</div>` : ""}
-                                ${contactDetailsHtml ? `<div class="company-details">${contactDetailsHtml}</div>` : ""}
-                            </td>
-                            <td class="header-right">
-                                <div class="doc-title">${docTitle}</div>
-                                <div class="doc-subtitle">${docSubtitle}</div>
-                                <table class="meta-grid-table">
-                                    <tr><td class="meta-th">Date:</td><td class="meta-td">${dateString}</td></tr>
-                                    <tr><td class="meta-th">Boards:</td><td class="meta-td">${cartItems.length}</td></tr>
-                                    <tr><td class="meta-th">Validity:</td><td class="meta-td">${docValidity}</td></tr>
-                                </table>
-                            </td>
-                        </tr>
-                    </table>
-                    <div class="header-divider"></div>
+                    <div class="header">
+                        <div>
+                            ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="logo-img" />` : ""}
+                            ${!logoUrl ? `<div class="company-name">${companyName}</div>` : ""}
+                            ${companyTagline ? `<div class="company-tagline">${companyTagline}</div>` : ""}
+                            <div class="company-contact">${contactParts.join(" &nbsp;\u00b7&nbsp; ")}</div>
+                        </div>
+                        <div class="header-right">
+                            <div class="doc-eyebrow">Document</div>
+                            <div class="doc-title">${docTitle}</div>
+                            <table class="meta-table">
+                                <tr><td class="meta-key">Ref No.</td><td class="meta-val">${refNum}</td></tr>
+                                <tr><td class="meta-key">Date</td><td class="meta-val">${dateString}</td></tr>
+                                <tr><td class="meta-key">Boards</td><td class="meta-val">${cartItems.length}</td></tr>
+                                <tr><td class="meta-key">Valid For</td><td class="meta-val">${docValidity}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    ${(companyGstin || companyAddress) ? `
+                    <div class="info-strip">
+                        ${companyGstin ? `<span><strong>GSTIN:</strong>&nbsp;${companyGstin}</span>` : "<span></span>"}
+                        ${companyAddress ? `<span>${companyAddress}</span>` : ""}
+                    </div>` : ""}
                     ${boardSectionsHtml}
-                    ${grandTotalSection}
+                    ${grandSummaryHtml}
+                    <div class="notes-section">
+                        <div class="notes-title">Terms &amp; Conditions</div>
+                        <ul class="notes-list">
+                            <li>This quotation is valid for <strong style="color:#6b7280">${docValidity}</strong> from the date of issue.</li>
+                            <li>Prices are subject to change without prior notice after the validity period.</li>
+                            <li>All prices are inclusive of applicable taxes unless stated otherwise.</li>
+                            <li>This is a system-generated document and does not require a physical signature.</li>
+                        </ul>
+                    </div>
+                    <div class="page-footer">
+                        <span>${companyName}</span>
+                        <span>${refNum} &nbsp;\u00b7&nbsp; ${dateString}</span>
+                    </div>
                 </body>
                 </html>`;
 
@@ -572,9 +590,6 @@ export default function CartTab({ onSwitchToBreakdown }) {
             setIsExportingPdf(false);
         }
     };
-
-    // ─────────────────────────────────────────────────────────────────────────
-
     if (cartCount === 0) {
         return (
             <div className={styles.emptyState}>
