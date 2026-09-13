@@ -355,6 +355,14 @@
         min-height: 220px;
     }
 
+    /* Move Save/Load JSON pill to bottom-left on mobile to avoid top-left pricing trigger */
+    .configTestControls {
+        top: auto;
+        bottom: 16px;
+        left: 12px;
+        z-index: 40;
+    }
+
     .zoomControls {
         position: fixed;
         top: 12px;

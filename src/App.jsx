@@ -3,6 +3,7 @@ import Sidebar from "./components/sidebar/Sidebar";
 import BoardContext from "./context/board";
 import SidebarContext from "./context/sidebar";
 import PricingProvider from "./context/pricing";
+import CartProvider from "./context/cart";
 import BackplateSelector from "./feature/BackplateSelector";
 import ComponentSelector from "./feature/ComponentSelector";
 import IconSelector from "./feature/IconSelector";
@@ -25,19 +26,21 @@ export default function App() {
     <div className="app">
       <SidebarContext>
         <PricingProvider>
-          <BoardContext>
-            <Sidebar>
-              <BackplateSelector title="Choose a backplate" />
-              <ComponentSelector title="Choose components" />
-              <IconSelector title="Choose icons" />
-              <MaterialSelector title="Choose materials" />
-              <ExportSelector title="Export & Download" />
-              <WallVisualizerSelector title="Place on Wall" />
-            </Sidebar>
-            <Preview />
-            <PricingSidebar />
-            <PricingModal />
-          </BoardContext>
+          <CartProvider>
+            <BoardContext>
+              <Sidebar>
+                <BackplateSelector title="Choose a backplate" />
+                <ComponentSelector title="Choose components" />
+                <IconSelector title="Choose icons" />
+                <MaterialSelector title="Choose materials" />
+                <ExportSelector title="Export & Download" />
+                <WallVisualizerSelector title="Place on Wall" />
+              </Sidebar>
+              <Preview />
+              <PricingSidebar />
+              <PricingModal />
+            </BoardContext>
+          </CartProvider>
         </PricingProvider>
       </SidebarContext>
     </div>

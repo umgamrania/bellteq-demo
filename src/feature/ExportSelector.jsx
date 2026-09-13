@@ -6,22 +6,34 @@ import {
     FileText,
     Loader2,
     FileJson,
-    Upload
+    Upload,
+    ShoppingCart,
+    Check,
+    RotateCcw,
+    Plus,
+    RefreshCw,
 } from "lucide-react";
 import { boardContext } from "../context/board";
 import { pricingContext } from "../context/pricing";
+import { cartContext } from "../context/cart";
 import { COMPANY_INFO } from "../data/companyInfo";
 import styles from "./ExportSelector.module.css";
 
+
 export default function ExportSelector() {
-    const { backplate, components, material, downloadConfiguration, importConfigFile } = useContext(boardContext);
+    const { backplate, components, material, downloadConfiguration, importConfigFile, exportConfiguration, resetBoard } = useContext(boardContext);
     const { formatPrice, calculateBreakdown } = useContext(pricingContext);
+    const { addToCart, updateCartItem, cartItems, activeCartId } = useContext(cartContext);
 
     const jsonFileInputRef = useRef(null);
 
     const [isExportingPng, setIsExportingPng] = useState(false);
     const [isExportingJpeg, setIsExportingJpeg] = useState(false);
     const [isExportingPdf, setIsExportingPdf] = useState(false);
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
+    const [cartNotice, setCartNotice] = useState(null); // 'added' | 'updated' | 'added_new' | null
+
+    const activeCartItem = activeCartId ? cartItems.find((i) => i.cartId === activeCartId) : null;
 
     const handleLoadJson = async (e) => {
         const file = e.target.files?.[0];
@@ -35,8 +47,79 @@ export default function ExportSelector() {
         }
     };
 
+    // Helper to capture a snapshot thumbnail of the current board
+    const captureThumbnail = async () => {
+        const node = document.getElementById("switchboard-board-container");
+        if (node) {
+            try {
+                return await toPng(node, { pixelRatio: 1.5, cacheBust: true });
+            } catch (e) {
+                console.warn("Could not capture board thumbnail for cart:", e);
+            }
+        }
+        return null;
+    };
+
+    // Update the currently loaded board in cart with new changes
+    const handleUpdateCart = async () => {
+        if (!backplate || !activeCartItem) return;
+        setIsAddingToCart(true);
+        try {
+            const config = exportConfiguration();
+            const thumbnail = await captureThumbnail();
+            updateCartItem(activeCartItem.cartId, config, thumbnail);
+            setCartNotice("updated");
+            setTimeout(() => setCartNotice(null), 2500);
+        } finally {
+            setIsAddingToCart(false);
+        }
+    };
+
+    // Save as a new copy/entry in cart
+    const handleSaveAsNewCart = async () => {
+        if (!backplate) return;
+        const defaultName = activeCartItem
+            ? `${activeCartItem.name} (Copy)`
+            : `Board ${cartItems.length + 1}`;
+        const inputName = window.prompt("Enter a name for this board:", defaultName);
+        if (inputName === null) return; // Cancelled
+        const finalName = inputName.trim() || defaultName;
+
+        setIsAddingToCart(true);
+        try {
+            const config = exportConfiguration();
+            const thumbnail = await captureThumbnail();
+            addToCart(config, finalName, thumbnail);
+            setCartNotice("added_new");
+            setTimeout(() => setCartNotice(null), 2500);
+        } finally {
+            setIsAddingToCart(false);
+        }
+    };
+
+    // Add brand new board to cart
+    const handleAddToCart = async () => {
+        if (!backplate) return;
+        const defaultName = `Board ${cartItems.length + 1}`;
+        const inputName = window.prompt("Enter a name for this board:", defaultName);
+        if (inputName === null) return; // Cancelled
+        const finalName = inputName.trim() || defaultName;
+
+        setIsAddingToCart(true);
+        try {
+            const config = exportConfiguration();
+            const thumbnail = await captureThumbnail();
+            addToCart(config, finalName, thumbnail);
+            setCartNotice("added");
+            setTimeout(() => setCartNotice(null), 2500);
+        } finally {
+            setIsAddingToCart(false);
+        }
+    };
+
     const breakdown = calculateBreakdown(backplate, components, material);
     const hasBackplate = Boolean(backplate?.src);
+
 
     // Download PNG with transparent background and high DPI
     const handleDownloadPng = async () => {
@@ -519,6 +602,14 @@ export default function ExportSelector() {
                                     <span>Discount ${breakdown.discount.type === "percent" ? `(${breakdown.discount.value}%)` : "(Flat)"}:</span>
                                     <span>-${formatPrice(breakdown.discountAmount)}</span>
                                 </div>
+                            ` : ""}
+                            ${breakdown.miscCostAmount > 0 ? `
+                                <div class="sum-row">
+                                    <span>Other / Delivery Charges:</span>
+                                    <span class="sum-val">+${formatPrice(breakdown.miscCostAmount)}</span>
+                                </div>
+                            ` : ""}
+                            ${(breakdown.discountAmount > 0 || breakdown.miscCostAmount > 0) ? `
                                 <div class="sum-row">
                                     <span>Taxable Subtotal:</span>
                                     <span class="sum-val">${formatPrice(breakdown.taxableAmount)}</span>
@@ -528,12 +619,6 @@ export default function ExportSelector() {
                                 <span>GST (${breakdown.gstRate}%):</span>
                                 <span class="sum-val">${breakdown.gstAmount > 0 ? `+${formatPrice(breakdown.gstAmount)}` : "₹0.00 (0%)"}</span>
                             </div>
-                            ${breakdown.miscCostAmount > 0 ? `
-                                <div class="sum-row">
-                                    <span>Other / Delivery Charges:</span>
-                                    <span class="sum-val">+${formatPrice(breakdown.miscCostAmount)}</span>
-                                </div>
-                            ` : ""}
                             <div class="divider"></div>
                             <div class="grand-total-row">
                                 <span>Total Amount:</span>
@@ -586,6 +671,33 @@ export default function ExportSelector() {
 
     return (
         <div className={styles.container}>
+            {/* ── Start New Board ── */}
+            <div className={styles.newBoardSection}>
+                <div className={styles.newBoardInfo}>
+                    <span className={styles.newBoardTitle}>
+                        {activeCartItem ? `Editing: ${activeCartItem.name}` : "Done with this board?"}
+                    </span>
+                    <span className={styles.newBoardSub}>
+                        {activeCartItem
+                            ? "Update your changes in cart below, or start a fresh board."
+                            : "Add it to the cart first, then start a fresh one."}
+                    </span>
+                </div>
+                <button
+                    type="button"
+                    className={styles.newBoardBtn}
+                    onClick={() => {
+                        if (!backplate) { resetBoard(); return; }
+                        if (window.confirm("Start a new board? The current board will be cleared.\n\nMake sure you've updated or added it to the cart first.")) {
+                            resetBoard();
+                        }
+                    }}
+                >
+                    <RotateCcw size={14} />
+                    New Board
+                </button>
+            </div>
+
             {/* Export Actions Section */}
             <div className={styles.exportSection}>
                 <h4 className={styles.sectionTitle}>Export Options</h4>
@@ -680,21 +792,103 @@ export default function ExportSelector() {
                         <Download size={16} className={styles.downloadArrow} />
                     </button>
 
-                    {/* JSON Configuration Load */}
-                    <button
-                        type="button"
-                        className={styles.actionCard}
-                        onClick={() => jsonFileInputRef.current?.click()}
-                    >
-                        <div className={styles.actionIconWrapper}>
-                            <Upload size={20} />
-                        </div>
-                        <div className={styles.actionDetails}>
-                            <span className={styles.actionTitle}>Load Config (JSON)</span>
-                            <span className={styles.actionSub}>Restore board state from a saved JSON</span>
-                        </div>
-                        <Upload size={16} className={styles.downloadArrow} />
-                    </button>
+
+
+                    {/* ── Cart Actions (Update / Add as New / Add to Cart) ── */}
+                    {activeCartItem ? (
+                        <>
+                            {/* 1. Update existing board in cart */}
+                            <button
+                                type="button"
+                                className={styles.actionCard}
+                                onClick={handleUpdateCart}
+                                disabled={!hasBackplate || isAddingToCart}
+                            >
+                                <div className={`${styles.actionIconWrapper} ${styles.cartIconWrapper}`}>
+                                    {isAddingToCart ? (
+                                        <Loader2 size={20} className={styles.spinner} />
+                                    ) : cartNotice === "updated" ? (
+                                        <Check size={20} />
+                                    ) : (
+                                        <RefreshCw size={20} />
+                                    )}
+                                </div>
+                                <div className={styles.actionDetails}>
+                                    <span className={styles.actionTitle}>
+                                        {cartNotice === "updated" ? "Updated in Cart!" : `Update "${activeCartItem.name}" in Cart`}
+                                    </span>
+                                    <span className={styles.actionSub}>
+                                        {cartNotice === "updated"
+                                            ? "Your changes have been saved to this board in cart"
+                                            : "Save your latest changes back to the cart entry"}
+                                    </span>
+                                </div>
+                                {cartNotice !== "updated" && !isAddingToCart && (
+                                    <Check size={16} className={styles.downloadArrow} />
+                                )}
+                            </button>
+
+                            {/* 2. Save as new separate copy in cart */}
+                            <button
+                                type="button"
+                                className={styles.actionCard}
+                                onClick={handleSaveAsNewCart}
+                                disabled={!hasBackplate || isAddingToCart}
+                            >
+                                <div className={styles.actionIconWrapper}>
+                                    {isAddingToCart ? (
+                                        <Loader2 size={20} className={styles.spinner} />
+                                    ) : cartNotice === "added_new" ? (
+                                        <Check size={20} />
+                                    ) : (
+                                        <Plus size={20} />
+                                    )}
+                                </div>
+                                <div className={styles.actionDetails}>
+                                    <span className={styles.actionTitle}>
+                                        {cartNotice === "added_new" ? "Added Copy to Cart!" : "Save as New Board to Cart"}
+                                    </span>
+                                    <span className={styles.actionSub}>
+                                        {`Keep "${activeCartItem.name}" and save this as a separate entry`}
+                                    </span>
+                                </div>
+                                {cartNotice !== "added_new" && !isAddingToCart && (
+                                    <ShoppingCart size={16} className={styles.downloadArrow} />
+                                )}
+                            </button>
+                        </>
+                    ) : (
+                        /* Standard Add to Cart */
+                        <button
+                            type="button"
+                            className={styles.actionCard}
+                            onClick={handleAddToCart}
+                            disabled={!hasBackplate || isAddingToCart}
+                        >
+                            <div className={`${styles.actionIconWrapper} ${styles.cartIconWrapper}`}>
+                                {isAddingToCart ? (
+                                    <Loader2 size={20} className={styles.spinner} />
+                                ) : cartNotice === "added" ? (
+                                    <Check size={20} />
+                                ) : (
+                                    <ShoppingCart size={20} />
+                                )}
+                            </div>
+                            <div className={styles.actionDetails}>
+                                <span className={styles.actionTitle}>
+                                    {cartNotice === "added" ? "Added to Cart!" : "Add to Cart"}
+                                </span>
+                                <span className={styles.actionSub}>
+                                    {cartNotice === "added"
+                                        ? "Open the Cart tab in the right panel to view"
+                                        : "Save this board to the multi-board quote cart"}
+                                </span>
+                            </div>
+                            {cartNotice !== "added" && !isAddingToCart && (
+                                <ShoppingCart size={16} className={styles.downloadArrow} />
+                            )}
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

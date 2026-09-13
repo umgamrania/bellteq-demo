@@ -260,8 +260,11 @@ export default function PricingProvider({ children }) {
         }
         discountAmount = Math.round(discountAmount * 100) / 100;
 
-        // Taxable Subtotal
-        const taxableAmount = Math.max(0, rawSubtotal - discountAmount);
+        // Misc Cost (e.g. delivery, installation, other charges)
+        const miscCostAmount = Math.max(0, Math.round(miscCost * 100) / 100);
+
+        // Taxable Subtotal: GST is applied AFTER, ON TOP OF misc charges and discounts
+        const taxableAmount = Math.max(0, rawSubtotal - discountAmount + miscCostAmount);
 
         // GST calculation
         let gstAmount = 0;
@@ -270,11 +273,8 @@ export default function PricingProvider({ children }) {
         }
         gstAmount = Math.round(gstAmount * 100) / 100;
 
-        // Misc Cost (flat addition after GST — e.g. delivery, installation, other charges)
-        const miscCostAmount = Math.max(0, Math.round(miscCost * 100) / 100);
-
         // Final Total
-        const finalTotal = Math.round((taxableAmount + gstAmount + miscCostAmount) * 100) / 100;
+        const finalTotal = Math.round((taxableAmount + gstAmount) * 100) / 100;
 
         return {
             backplateItem,

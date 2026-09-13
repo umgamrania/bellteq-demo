@@ -5,6 +5,61 @@
     gap: 16px;
 }
 
+/* ── Start New Board banner ── */
+.newBoardSection {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #ffffff;
+    border: 1px solid var(--surface-accent);
+    border-radius: 12px;
+}
+
+.newBoardInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.newBoardTitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.newBoardSub {
+    font-size: 11px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.newBoardBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: #f3f4f6;
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    outline: none;
+}
+
+.newBoardBtn:hover {
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+}
+
 .summaryCard {
     background: #ffffff;
     border-radius: 12px;
@@ -191,5 +246,11 @@
         width: 34px;
         height: 34px;
     }
+}
+
+/* Cart action card */
+.cartIconWrapper {
+    background: #d1fae5;
+    color: #065f46;
 }
 

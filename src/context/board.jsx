@@ -1,11 +1,13 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { sidebarContext } from "./sidebar";
+import { cartContext } from "./cart";
 import { WALL_PRESETS } from "../data/wallPresets";
 
 export const boardContext = createContext(null);
 
 export default function BoardContext({ children }) {
     const { setActiveIdx, activeIdx } = useContext(sidebarContext) || {};
+    const { setActiveCartId } = useContext(cartContext) || {};
     const [backplate, setBackplate] = useState(null);
     const [slots, setSlots] = useState(0);
     // componentIds: Array<Array<string>> — 2D array of instance_ids, preserving row layout
@@ -27,6 +29,20 @@ export default function BoardContext({ children }) {
         setWallPosition({ x: 0, y: 0 });
         setWallScale(DEFAULT_WALL_SCALE);
         setWallRotation(0);
+    };
+
+    /** Reset the entire board to a blank slate and return to Step 1 */
+    const resetBoard = () => {
+        setBackplate(null);
+        setSlots(0);
+        setComponentIds([]);
+        setComponents({});
+        setActiveSlot({});
+        setMaterial(null);
+        setWallImage(WALL_PRESETS[0]?.src || "");
+        resetWallTransform();
+        if (setActiveIdx) setActiveIdx(0);
+        if (setActiveCartId) setActiveCartId(null);
     };
 
     useEffect(() => {
@@ -274,7 +290,7 @@ export default function BoardContext({ children }) {
     };
 
     /** Load configuration state from JSON string or object */
-    const loadConfiguration = (configInput) => {
+    const loadConfiguration = (configInput, targetStageOverride) => {
         try {
             let config = configInput;
             if (typeof configInput === "string") {
@@ -309,7 +325,10 @@ export default function BoardContext({ children }) {
                 if (config.wall.wallShadow !== undefined) setWallShadow(config.wall.wallShadow);
             }
 
-            const targetStage = config.stageIdx ?? config.activeIdx;
+            const targetStage = typeof targetStageOverride === "number"
+                ? targetStageOverride
+                : (config.stageIdx ?? config.activeIdx);
+
             if (typeof targetStage === "number" && setActiveIdx) {
                 setActiveIdx(targetStage);
             } else if (setActiveIdx && config.backplate) {
@@ -340,6 +359,7 @@ export default function BoardContext({ children }) {
                     const text = e.target?.result;
                     const result = loadConfiguration(text);
                     if (result.success) {
+                        if (setActiveCartId) setActiveCartId(null);
                         resolve(result);
                     } else {
                         reject(new Error(result.error));
@@ -393,6 +413,7 @@ export default function BoardContext({ children }) {
             wallRotation, setWallRotation,
             wallShadow, setWallShadow,
             resetWallTransform,
+            resetBoard,
             isStageComplete,
             exportConfiguration,
             downloadConfiguration,
