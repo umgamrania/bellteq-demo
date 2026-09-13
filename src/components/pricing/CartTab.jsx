@@ -320,7 +320,6 @@ export default function CartTab({ onSwitchToBreakdown }) {
             const companyGstin = COMPANY_INFO?.gstin || "";
             const companyAddress = COMPANY_INFO?.address || "";
 
-            const refNum = `Q-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}-${String(Math.floor(1000 + Math.random() * 9000))}`;
 
             let boardSectionsHtml = "";
             let combinedRawSubtotal = 0;
@@ -426,7 +425,6 @@ export default function CartTab({ onSwitchToBreakdown }) {
 
             const grandSummaryHtml = `
                 <div class="grand-summary-section">
-                    <div class="section-label" style="margin-bottom:14px;">Combined Quotation Summary</div>
                     <div class="summary-wrap">
                         <div class="summary-box">
                             <div class="summary-header">Price Breakdown \u2014 ${cartItems.length} Board${cartItems.length !== 1 ? "s" : ""}</div>
@@ -476,12 +474,12 @@ export default function CartTab({ onSwitchToBreakdown }) {
                             print-color-adjust: exact;
                         }
                         .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 16px; border-bottom: 2px solid #1a1a2e; margin-bottom: 18px; }
-                        .logo-img { height: 38px; width: auto; max-width: 170px; object-fit: contain; display: block; margin-bottom: 7px; filter: brightness(0); }
+                        .logo-img { height: 56px; width: auto; max-width: 220px; object-fit: contain; display: block; margin-bottom: 8px; filter: brightness(0); }
                         .company-name { font-size: 11.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #111827; margin-bottom: 2px; }
                         .company-tagline { font-size: 10px; color: #6b7280; margin-bottom: 5px; }
                         .company-contact { font-size: 9.5px; color: #9ca3af; line-height: 1.7; }
+                        .company-gstin { font-size: 9.5px; color: #9ca3af; margin-top: 4px; }
                         .header-right { text-align: right; }
-                        .doc-eyebrow { font-size: 9px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #9ca3af; margin-bottom: 3px; }
                         .doc-title { font-size: 28px; font-weight: 700; color: #111827; letter-spacing: -0.02em; line-height: 1; margin-bottom: 12px; }
                         .meta-table { margin-left: auto; border-collapse: collapse; }
                         .meta-table td { padding: 2px 0 2px 14px; font-size: 10px; }
@@ -509,8 +507,8 @@ export default function CartTab({ onSwitchToBreakdown }) {
                         .amount-cell { text-align: right; font-weight: 600; color: #111827; }
                         .board-subtotal-row { text-align: right; font-size: 11px; color: #6b7280; padding: 6px 0 0; }
                         .board-subtotal-row strong { color: #111827; }
-                        .grand-summary-section { margin-top: 16px; padding-top: 20px; border-top: 2px solid #1a1a2e; }
-                        .summary-wrap { display: flex; justify-content: flex-end; margin-top: 12px; }
+                        .grand-summary-section { margin-top: 16px; padding-top: 16px; border-top: 2px solid #1a1a2e; }
+                        .summary-wrap { display: flex; justify-content: flex-end; }
                         .summary-box { width: 310px; border: 1px solid #e5e7eb; border-radius: 5px; overflow: hidden; }
                         .summary-header { background: #f3f4f6; border-bottom: 1px solid #e5e7eb; padding: 6px 14px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #6b7280; }
                         .summary-body { padding: 10px 14px 12px; }
@@ -519,16 +517,12 @@ export default function CartTab({ onSwitchToBreakdown }) {
                         .s-row.s-discount { color: #166534; }
                         .s-rule { height: 1px; background: #e5e7eb; margin: 8px 0; }
                         .s-total { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; font-weight: 700; color: #111827; }
-                        .notes-section { margin-top: 28px; padding-top: 14px; border-top: 1px solid #e5e7eb; }
-                        .notes-title { font-size: 9.5px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #6b7280; margin-bottom: 5px; }
-                        .notes-list { list-style: none; }
-                        .notes-list li { font-size: 9.5px; color: #9ca3af; line-height: 1.7; padding-left: 12px; position: relative; }
-                        .notes-list li::before { content: "\u2013"; position: absolute; left: 0; }
-                        .page-footer { position: fixed; bottom: 0; left: 0; right: 0; border-top: 1px solid #e5e7eb; padding: 5px 16mm; display: flex; justify-content: space-between; font-size: 9px; color: #9ca3af; background: #fff; }
+                        .doc-footer { margin-top: 36px; padding-top: 12px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 9.5px; color: #9ca3af; letter-spacing: 0.02em; }
                         @media print {
                             html, body { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
                             .board-section { break-inside: avoid; }
                             .grand-summary-section { break-inside: avoid; }
+                            .doc-footer { break-inside: avoid; }
                         }
                     </style>
                 </head>
@@ -538,38 +532,23 @@ export default function CartTab({ onSwitchToBreakdown }) {
                             ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="logo-img" />` : ""}
                             ${!logoUrl ? `<div class="company-name">${companyName}</div>` : ""}
                             ${companyTagline ? `<div class="company-tagline">${companyTagline}</div>` : ""}
-                            <div class="company-contact">${contactParts.join(" &nbsp;\u00b7&nbsp; ")}</div>
+                            <div class="company-contact">${contactParts.join("<br>")}</div>
+                            ${companyGstin ? `<div class="company-gstin">GSTIN: ${companyGstin}</div>` : ""}
+                            ${companyAddress ? `<div class="company-gstin">${companyAddress}</div>` : ""}
                         </div>
                         <div class="header-right">
-                            <div class="doc-eyebrow">Document</div>
                             <div class="doc-title">${docTitle}</div>
                             <table class="meta-table">
-                                <tr><td class="meta-key">Ref No.</td><td class="meta-val">${refNum}</td></tr>
                                 <tr><td class="meta-key">Date</td><td class="meta-val">${dateString}</td></tr>
                                 <tr><td class="meta-key">Boards</td><td class="meta-val">${cartItems.length}</td></tr>
                                 <tr><td class="meta-key">Valid For</td><td class="meta-val">${docValidity}</td></tr>
                             </table>
                         </div>
                     </div>
-                    ${(companyGstin || companyAddress) ? `
-                    <div class="info-strip">
-                        ${companyGstin ? `<span><strong>GSTIN:</strong>&nbsp;${companyGstin}</span>` : "<span></span>"}
-                        ${companyAddress ? `<span>${companyAddress}</span>` : ""}
-                    </div>` : ""}
                     ${boardSectionsHtml}
                     ${grandSummaryHtml}
-                    <div class="notes-section">
-                        <div class="notes-title">Terms &amp; Conditions</div>
-                        <ul class="notes-list">
-                            <li>This quotation is valid for <strong style="color:#6b7280">${docValidity}</strong> from the date of issue.</li>
-                            <li>Prices are subject to change without prior notice after the validity period.</li>
-                            <li>All prices are inclusive of applicable taxes unless stated otherwise.</li>
-                            <li>This is a system-generated document and does not require a physical signature.</li>
-                        </ul>
-                    </div>
-                    <div class="page-footer">
-                        <span>${companyName}</span>
-                        <span>${refNum} &nbsp;\u00b7&nbsp; ${dateString}</span>
+                    <div class="doc-footer">
+                        This is a computer-generated quote.
                     </div>
                 </body>
                 </html>`;

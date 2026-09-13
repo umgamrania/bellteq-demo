@@ -286,8 +286,6 @@ export default function ExportSelector() {
             const companyGstin = COMPANY_INFO?.gstin || "";
             const companyAddress = COMPANY_INFO?.address || "";
 
-            // Auto-generate a quote reference number
-            const refNum = `Q-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}-${String(Math.floor(1000 + Math.random() * 9000))}`;
 
             const printContent = `
                 <!DOCTYPE html>
@@ -327,12 +325,12 @@ export default function ExportSelector() {
                             margin-bottom: 18px;
                         }
                         .logo-img {
-                            height: 38px;
+                            height: 56px;
                             width: auto;
-                            max-width: 170px;
+                            max-width: 220px;
                             object-fit: contain;
                             display: block;
-                            margin-bottom: 7px;
+                            margin-bottom: 8px;
                             filter: brightness(0);
                         }
                         .company-name {
@@ -354,14 +352,6 @@ export default function ExportSelector() {
                             line-height: 1.7;
                         }
                         .header-right { text-align: right; }
-                        .doc-eyebrow {
-                            font-size: 9px;
-                            font-weight: 600;
-                            letter-spacing: 0.14em;
-                            text-transform: uppercase;
-                            color: #9ca3af;
-                            margin-bottom: 3px;
-                        }
                         .doc-title {
                             font-size: 28px;
                             font-weight: 700;
@@ -504,46 +494,20 @@ export default function ExportSelector() {
                             color: #111827;
                         }
 
-                        /* ── Notes ────────────────────────────── */
-                        .notes-section {
-                            margin-top: 28px;
-                            padding-top: 14px;
+                        /* ── Footer ───────────────────────────── */
+                        .doc-footer {
+                            margin-top: 36px;
+                            padding-top: 12px;
                             border-top: 1px solid #e5e7eb;
-                        }
-                        .notes-title {
-                            font-size: 9.5px;
-                            font-weight: 700;
-                            letter-spacing: 0.09em;
-                            text-transform: uppercase;
-                            color: #6b7280;
-                            margin-bottom: 5px;
-                        }
-                        .notes-list { list-style: none; }
-                        .notes-list li {
+                            text-align: center;
                             font-size: 9.5px;
                             color: #9ca3af;
-                            line-height: 1.7;
-                            padding-left: 12px;
-                            position: relative;
-                        }
-                        .notes-list li::before { content: "–"; position: absolute; left: 0; }
-
-                        /* ── Print footer ─────────────────────── */
-                        .page-footer {
-                            position: fixed;
-                            bottom: 0; left: 0; right: 0;
-                            border-top: 1px solid #e5e7eb;
-                            padding: 5px 16mm;
-                            display: flex;
-                            justify-content: space-between;
-                            font-size: 9px;
-                            color: #9ca3af;
-                            background: #fff;
+                            letter-spacing: 0.02em;
                         }
 
                         @media print {
                             html, body { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
-                            .preview-block, .summary-wrap, .notes-section { break-inside: avoid; }
+                            .preview-block, .summary-wrap, .doc-footer { break-inside: avoid; }
                         }
                     </style>
                 </head>
@@ -554,13 +518,13 @@ export default function ExportSelector() {
                             ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="logo-img" />` : ""}
                             ${!logoUrl ? `<div class="company-name">${companyName}</div>` : ""}
                             ${companyTagline ? `<div class="company-tagline">${companyTagline}</div>` : ""}
-                            <div class="company-contact">${contactParts.join(" &nbsp;·&nbsp; ")}</div>
+                            <div class="company-contact">${contactParts.join("<br>")}</div>
+                            ${companyGstin ? `<div class="company-gstin">GSTIN: ${companyGstin}</div>` : ""}
+                            ${companyAddress ? `<div class="company-gstin">${companyAddress}</div>` : ""}
                         </div>
                         <div class="header-right">
-                            <div class="doc-eyebrow">Document</div>
                             <div class="doc-title">${docTitle}</div>
                             <table class="meta-table">
-                                <tr><td class="meta-key">Ref No.</td><td class="meta-val">${refNum}</td></tr>
                                 <tr><td class="meta-key">Date</td><td class="meta-val">${dateString}</td></tr>
                                 <tr><td class="meta-key">Valid For</td><td class="meta-val">${docValidity}</td></tr>
                             </table>
@@ -568,11 +532,6 @@ export default function ExportSelector() {
                     </div>
 
                     <!-- Info strip -->
-                    ${(companyGstin || companyAddress) ? `
-                    <div class="info-strip">
-                        ${companyGstin ? `<span><strong>GSTIN:</strong>&nbsp;${companyGstin}</span>` : "<span></span>"}
-                        ${companyAddress ? `<span>${companyAddress}</span>` : ""}
-                    </div>` : ""}
 
                     <!-- Board Preview -->
                     ${boardImageDataUrl ? `
@@ -627,21 +586,8 @@ export default function ExportSelector() {
                         </div>
                     </div>
 
-                    <!-- Notes -->
-                    <div class="notes-section">
-                        <div class="notes-title">Terms &amp; Conditions</div>
-                        <ul class="notes-list">
-                            <li>This quotation is valid for <strong style="color:#6b7280">${docValidity}</strong> from the date of issue.</li>
-                            <li>Prices are subject to change without prior notice after the validity period.</li>
-                            <li>All prices are inclusive of applicable taxes unless stated otherwise.</li>
-                            <li>This is a system-generated document and does not require a physical signature.</li>
-                        </ul>
-                    </div>
-
-                    <!-- Page Footer -->
-                    <div class="page-footer">
-                        <span>${companyName}</span>
-                        <span>${refNum} &nbsp;·&nbsp; ${dateString}</span>
+                    <div class="doc-footer">
+                        This is a computer-generated quote.
                     </div>
                 </body>
                 </html>
