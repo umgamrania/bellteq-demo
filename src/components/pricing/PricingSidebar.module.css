@@ -172,6 +172,10 @@
     border-color: #d1d5db;
 }
 
+.configBtnText {
+    display: inline;
+}
+
 .configBtnHidden {
     visibility: hidden;
     pointer-events: none;
@@ -727,43 +731,28 @@
     }
 
     .configBtn {
-        padding: 5px 8px;
-        font-size: 11px;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 6px;
     }
 
-    .configBtnHidden {
+    .configBtnText {
         display: none !important;
     }
 
     .closeBtn {
         display: inline-flex;
-    }
-
-    /* Two-row stacked layout for controls on mobile */
-    .taxControlsCard {
-        gap: 12px;
-    }
-
-    .controlRow {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-    }
-
-    .controlInputsGroup {
-        width: 100%;
-    }
-
-    .selectInput {
-        width: 100%;
-    }
-
-    .miscRow {
-        padding-top: 12px;
-    }
-
-    .miscInputWrapper {
-        width: 100%;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
     }
 
     .collapsedTrigger {

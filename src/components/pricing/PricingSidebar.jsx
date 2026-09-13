@@ -92,13 +92,13 @@ export default function PricingSidebar() {
                     <div className={styles.headerActions}>
                         <button
                             type="button"
-                            className={`${styles.configBtn} ${activeTab !== "breakdown" ? styles.configBtnHidden : ""}`}
+                            className={styles.configBtn}
                             onClick={() => setIsPricingModalOpen(true)}
                             title="Configure Unit Prices"
                             aria-label="Configure Unit Prices"
                         >
                             <SlidersHorizontal size={15} />
-                            <span>Pricing</span>
+                            <span className={styles.configBtnText}>Pricing</span>
                         </button>
                         <button
                             type="button"
