@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { FileText, FileSpreadsheet, X, EyeOff } from "lucide-react";
 import styles from "./PdfBomModal.module.css";
 
@@ -21,7 +22,7 @@ export default function PdfBomModal({
 
     if (!isOpen) return null;
 
-    return (
+    const modalContent = (
         <div className={styles.overlay} onClick={onClose}>
             <div
                 className={styles.modal}
@@ -94,5 +95,7 @@ export default function PdfBomModal({
             </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 }
 
