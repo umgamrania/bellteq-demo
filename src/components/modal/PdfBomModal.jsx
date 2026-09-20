@@ -64,13 +64,7 @@ export default function PdfBomModal({
                             <FileSpreadsheet size={20} />
                         </div>
                         <div className={styles.cardInfo}>
-                            <div className={styles.cardHeading}>
-                                <span className={styles.cardTitle}>Include Bill of Materials (BOM)</span>
-                                <span className={styles.badgePrimary}>Full Quote</span>
-                            </div>
-                            <span className={styles.cardDesc}>
-                                Complete parts list with all switches, sockets, accessories, finishes, quantities, and itemized unit rates.
-                            </span>
+                            <span className={styles.cardTitle}>Include Bill of Materials (BOM)</span>
                         </div>
                     </button>
 
@@ -86,13 +80,7 @@ export default function PdfBomModal({
                             <EyeOff size={20} />
                         </div>
                         <div className={styles.cardInfo}>
-                            <div className={styles.cardHeading}>
-                                <span className={styles.cardTitle}>Exclude Bill of Materials (BOM)</span>
-                                <span className={styles.badgeSecondary}>Summary Only</span>
-                            </div>
-                            <span className={styles.cardDesc}>
-                                Board design preview and total pricing summary only. Component rates and itemized parts list are hidden.
-                            </span>
+                            <span className={styles.cardTitle}>Exclude Bill of Materials (BOM)</span>
                         </div>
                     </button>
                 </div>

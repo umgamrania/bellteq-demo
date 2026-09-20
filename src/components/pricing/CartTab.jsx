@@ -465,12 +465,13 @@ export default function CartTab({ onSwitchToBreakdown }) {
                                 </div>` : ""}
                                 ${cartTax.miscCostAmount > 0 ? `
                                 <div class="s-row"><span>Other / Misc. Charges</span><span class="s-val">+ ${formatPrice(cartTax.miscCostAmount)}</span></div>` : ""}
-                                ${(cartTax.discountAmount > 0 || cartTax.miscCostAmount > 0) ? `
+                                ${(gstRate > 0 && (cartTax.discountAmount > 0 || cartTax.miscCostAmount > 0)) ? `
                                 <div class="s-row"><span>Taxable Amount</span><span class="s-val">${formatPrice(cartTax.taxableAmount)}</span></div>` : ""}
+                                ${(gstRate > 0 && cartTax.gstAmount > 0) ? `
                                 <div class="s-row">
-                                    <span>GST (${gstRate || 0}%)</span>
-                                    <span class="s-val">${cartTax.gstAmount > 0 ? `+ ${formatPrice(cartTax.gstAmount)}` : "Nil"}</span>
-                                </div>
+                                    <span>GST (${gstRate}%)</span>
+                                    <span class="s-val">+ ${formatPrice(cartTax.gstAmount)}</span>
+                                </div>` : ""}
                                 <div class="s-rule"></div>
                                 <div class="s-total">
                                     <span>Grand Total</span>
@@ -746,19 +747,21 @@ export default function CartTab({ onSwitchToBreakdown }) {
                         </div>
                     )}
 
-                    {(discountAmount > 0 || miscCostAmount > 0) && (
+                    {(gstRate > 0 && (discountAmount > 0 || miscCostAmount > 0)) && (
                         <div className={styles.taxRow}>
                             <span className={styles.taxLabel}>Taxable Amount</span>
                             <span className={styles.taxValue}>{formatPrice(taxableAmount)}</span>
                         </div>
                     )}
 
-                    <div className={styles.taxRow}>
-                        <span className={styles.taxLabel}>GST ({gstRate || 0}%)</span>
-                        <span className={styles.taxValue}>
-                            {gstAmount > 0 ? `+${formatPrice(gstAmount)}` : "₹0.00"}
-                        </span>
-                    </div>
+                    {(gstRate > 0 && gstAmount > 0) && (
+                        <div className={styles.taxRow}>
+                            <span className={styles.taxLabel}>GST ({gstRate}%)</span>
+                            <span className={styles.taxValue}>
+                                +{formatPrice(gstAmount)}
+                            </span>
+                        </div>
+                    )}
 
                     <div className={styles.taxDivider} />
 

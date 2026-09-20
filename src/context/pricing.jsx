@@ -3,7 +3,7 @@ import { DEFAULT_PRICES, STORAGE_KEY_PRICES, DEFAULT_CURRENCY } from "../data/de
 
 export const pricingContext = createContext(null);
 
-const STORAGE_KEY_GST = "myob_gst_rate_v1";
+const STORAGE_KEY_GST = "myob_gst_rate_v2";
 const STORAGE_KEY_DISCOUNT = "myob_discount_config_v1";
 const STORAGE_KEY_MISC_COST = "myob_misc_cost_v1";
 
@@ -35,7 +35,7 @@ export default function PricingProvider({ children }) {
         } catch (e) {
             console.error("Failed to load GST from localStorage", e);
         }
-        return 18; // Default 18% GST standard in India
+        return 0; // Default 0% (No tax)
     });
 
     // Discount state: { type: "percent" | "flat", value: number }

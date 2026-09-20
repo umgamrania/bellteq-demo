@@ -609,12 +609,13 @@ export default function ExportSelector() {
                                 </div>` : ""}
                                 ${breakdown.miscCostAmount > 0 ? `
                                 <div class="s-row"><span>Other / Delivery Charges</span><span class="s-val">+ ${formatPrice(breakdown.miscCostAmount)}</span></div>` : ""}
-                                ${(breakdown.discountAmount > 0 || breakdown.miscCostAmount > 0) ? `
+                                ${(breakdown.gstRate > 0 && (breakdown.discountAmount > 0 || breakdown.miscCostAmount > 0)) ? `
                                 <div class="s-row"><span>Taxable Amount</span><span class="s-val">${formatPrice(breakdown.taxableAmount)}</span></div>` : ""}
+                                ${(breakdown.gstRate > 0 && breakdown.gstAmount > 0) ? `
                                 <div class="s-row">
                                     <span>GST (${breakdown.gstRate}%)</span>
-                                    <span class="s-val">${breakdown.gstAmount > 0 ? `+ ${formatPrice(breakdown.gstAmount)}` : "Nil"}</span>
-                                </div>
+                                    <span class="s-val">+ ${formatPrice(breakdown.gstAmount)}</span>
+                                </div>` : ""}
                                 <div class="s-rule"></div>
                                 <div class="s-total">
                                     <span>Total Amount</span>
