@@ -102,8 +102,8 @@ export default function Preview() {
         setZoom(1);
     };
 
-    // If on Step 6 (Wall Placement / Room Visualizer), render WallVisualizer
-    if (activeIdx === 5) {
+    // If on Step 7 (Wall Placement / Room Visualizer), render WallVisualizer
+    if (activeIdx === 6) {
         return <WallVisualizer />;
     }
 

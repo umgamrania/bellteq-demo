@@ -50,4 +50,8 @@ export const DEFAULT_PRICES = {
     "material_white": 0,
     "material_own-material": 250,
     "material_own-background": 150,
+
+    // Accessories
+    "accessory_wifi-chip": 500,
+    "accessory_hi-load": 800,
 };

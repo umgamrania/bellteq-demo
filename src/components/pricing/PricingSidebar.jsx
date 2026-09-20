@@ -5,6 +5,7 @@ import {
     Layers,
     Cpu,
     Palette,
+    Package,
     IndianRupee,
     X,
     ShoppingCart,
@@ -12,11 +13,12 @@ import {
 import { boardContext } from "../../context/board";
 import { pricingContext } from "../../context/pricing";
 import { cartContext } from "../../context/cart";
+import { ACCESSORY_MAP } from "../../data/accessories";
 import CartTab from "./CartTab";
 import styles from "./PricingSidebar.module.css";
 
 export default function PricingSidebar() {
-    const { backplate, components, material } = useContext(boardContext);
+    const { backplate, components, material, accessories } = useContext(boardContext);
     const {
         formatPrice,
         calculateBreakdown,
@@ -30,11 +32,12 @@ export default function PricingSidebar() {
     const [activeTab, setActiveTab] = useState("breakdown");
 
     // Calculate BOM & totals for current board
-    const breakdown = calculateBreakdown(backplate, components, material);
+    const breakdown = calculateBreakdown(backplate, components, material, accessories);
     const hasBackplate = Boolean(breakdown.backplateItem);
     const hasComponents = breakdown.componentItems.length > 0;
     const hasMaterial = Boolean(breakdown.materialItem);
-    const hasAnyItem = hasBackplate || hasComponents || hasMaterial;
+    const hasAccessories = breakdown.accessoryItems && breakdown.accessoryItems.length > 0;
+    const hasAnyItem = hasBackplate || hasComponents || hasMaterial || hasAccessories;
 
     return (
         <>
@@ -228,7 +231,45 @@ export default function PricingSidebar() {
                                         )}
                                     </div>
 
-                                    {/* 3. Material Finish */}
+                                    {/* 3. Accessories */}
+                                    {hasAccessories && (
+                                        <div className={styles.section}>
+                                            <div className={styles.sectionHeading}>
+                                                <span className={styles.sectionTitle}>
+                                                    <Package size={14} />
+                                                    Accessories
+                                                </span>
+                                                <span className={styles.sectionPrice}>
+                                                    {formatPrice(breakdown.accessoriesCost)}
+                                                </span>
+                                            </div>
+                                            <div className={styles.componentList}>
+                                                {breakdown.accessoryItems.map((item) => {
+                                                    const meta = ACCESSORY_MAP[item.id];
+                                                    return (
+                                                        <div key={item.id} className={styles.itemCard}>
+                                                            <div className={styles.itemMeta}>
+                                                                <div className={styles.nameRow}>
+                                                                    <span className={styles.itemName}>{meta?.name ?? item.id}</span>
+                                                                    <span className={styles.qtyBadge}>×{item.qty}</span>
+                                                                </div>
+                                                                <span className={styles.itemDetails}>
+                                                                    {formatPrice(item.unitPrice)} each
+                                                                </span>
+                                                            </div>
+                                                            <div className={styles.itemCostCol}>
+                                                                <span className={styles.itemCostBold}>
+                                                                    {formatPrice(item.totalPrice)}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* 4. Material Finish */}
                                     {hasMaterial && (
                                         <div className={styles.section}>
                                             <div className={styles.sectionHeading}>

@@ -4,6 +4,7 @@ import { pricingContext } from "../../context/pricing";
 import { BACKPLATES } from "../../data/backplates";
 import { COMPONENT_SECTIONS } from "../../data/components";
 import { MATERIALS } from "../../data/materials";
+import { ACCESSORIES } from "../../data/accessories";
 import styles from "./PricingModal.module.css";
 
 export default function PricingModal() {
@@ -46,6 +47,7 @@ export default function PricingModal() {
         { id: "plugs", label: "Plugs", count: COMPONENT_SECTIONS.find(s => s.id === "plugs")?.items.length || 0 },
         { id: "other", label: "Other Sockets", count: COMPONENT_SECTIONS.find(s => s.id === "other")?.items.length || 0 },
         { id: "materials", label: "Materials", count: MATERIALS.length },
+        { id: "accessories", label: "Accessories", count: ACCESSORIES.length },
     ];
 
     // Filter items based on search query and active tab
@@ -84,6 +86,17 @@ export default function PricingModal() {
                 specs: m.description,
                 src: m.src,
                 currentPrice: prices[`material_${m.id}`] ?? 0,
+            }));
+        }
+
+        if (activeTab === "accessories") {
+            return ACCESSORIES.filter(a => !query || a.name.toLowerCase().includes(query)).map(a => ({
+                key: `accessory_${a.id}`,
+                id: a.id,
+                name: a.name,
+                specs: `${a.description} · ${a.type === "toggle" ? "Yes / No" : "Quantity"}`,
+                src: null, // accessories have no image
+                currentPrice: prices[`accessory_${a.id}`] ?? 0,
             }));
         }
 
@@ -155,7 +168,10 @@ export default function PricingModal() {
                             currentItems.map((item) => (
                                 <div key={item.key} className={styles.itemRow}>
                                     <div className={styles.itemThumb}>
-                                        <img src={item.src} alt={item.name} />
+                                        {item.src
+                                            ? <img src={item.src} alt={item.name} />
+                                            : <span className={styles.noThumb}>—</span>
+                                        }
                                     </div>
                                     <div className={styles.itemInfo}>
                                         <span className={styles.itemName}>{item.name}</span>

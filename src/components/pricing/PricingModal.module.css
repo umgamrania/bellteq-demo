@@ -241,6 +241,13 @@
     object-fit: contain;
 }
 
+.noThumb {
+    font-size: 18px;
+    color: #9ca3af;
+    line-height: 1;
+    user-select: none;
+}
+
 .itemInfo {
     flex: 1;
     min-width: 0;

@@ -2,6 +2,7 @@ import { createContext, useState, useEffect, useContext } from "react";
 import { sidebarContext } from "./sidebar";
 import { cartContext } from "./cart";
 import { WALL_PRESETS } from "../data/wallPresets";
+import { ACCESSORIES } from "../data/accessories";
 
 export const boardContext = createContext(null);
 
@@ -16,6 +17,8 @@ export default function BoardContext({ children }) {
     const [components, setComponents] = useState({});
     const [activeSlot, setActiveSlot] = useState({});
     const [material, setMaterial] = useState(null);
+    // accessories: { "wifi-chip": boolean, "hi-load": number }
+    const [accessories, setAccessories] = useState({ "wifi-chip": false, "hi-load": 0 });
 
     // Wall visualizer mockup state (Step 6)
     const DEFAULT_WALL_SCALE = 0.55;
@@ -31,6 +34,23 @@ export default function BoardContext({ children }) {
         setWallRotation(0);
     };
 
+    /**
+     * Set the quantity / toggle for a single accessory.
+     * For "toggle" accessories (wifi-chip): value is treated as boolean.
+     * For "quantity" accessories (hi-load): value is clamped to >= 0.
+     */
+    const setAccessoryQty = (id, value) => {
+        const accessory = ACCESSORIES.find((a) => a.id === id);
+        if (!accessory) return;
+        setAccessories((prev) => {
+            if (accessory.type === "toggle") {
+                return { ...prev, [id]: Boolean(value) };
+            }
+            const qty = Math.max(0, Math.round(Number(value) || 0));
+            return { ...prev, [id]: qty };
+        });
+    };
+
     /** Reset the entire board to a blank slate and return to Step 1 */
     const resetBoard = () => {
         setBackplate(null);
@@ -39,6 +59,7 @@ export default function BoardContext({ children }) {
         setComponents({});
         setActiveSlot({});
         setMaterial(null);
+        setAccessories({ "wifi-chip": false, "hi-load": 0 });
         setWallImage(WALL_PRESETS[0]?.src || "");
         resetWallTransform();
         if (setActiveIdx) setActiveIdx(0);
@@ -261,6 +282,7 @@ export default function BoardContext({ children }) {
             componentIds,
             components,
             material,
+            accessories,
             activeSlot,
             wall: {
                 wallImage,
@@ -312,6 +334,9 @@ export default function BoardContext({ children }) {
             }
             if (config.material !== undefined) {
                 setMaterial(config.material);
+            }
+            if (config.accessories !== undefined && typeof config.accessories === "object") {
+                setAccessories({ "wifi-chip": false, "hi-load": 0, ...config.accessories });
             }
             if (config.activeSlot !== undefined) {
                 setActiveSlot(config.activeSlot || {});
@@ -389,6 +414,7 @@ export default function BoardContext({ children }) {
         componentIds,
         components,
         material,
+        accessories,
         activeSlot,
         wallImage,
         wallPosition,
@@ -407,6 +433,7 @@ export default function BoardContext({ children }) {
             getComponent, addComponent, removeComponent,
             setIcon, findNextEmptySlot,
             material, selectMaterial: setMaterial, setMaterial,
+            accessories, setAccessoryQty,
             wallImage, setWallImage,
             wallPosition, setWallPosition,
             wallScale, setWallScale,

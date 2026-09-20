@@ -19,6 +19,8 @@ import { boardContext } from "../../context/board";
 import { sidebarContext } from "../../context/sidebar";
 import { pricingContext } from "../../context/pricing";
 import { COMPANY_INFO } from "../../data/companyInfo";
+import { ACCESSORY_MAP } from "../../data/accessories";
+import PdfBomModal from "../modal/PdfBomModal";
 import styles from "./CartTab.module.css";
 
 const GST_OPTIONS = [
@@ -38,7 +40,7 @@ function CartItemRow({ item, isActive, onLoad, onRemove, onRename, formatPrice, 
     const inputRef = useRef(null);
 
     const cfg = item.config;
-    const breakdown = calculateBreakdown(cfg?.backplate, cfg?.components, cfg?.material);
+    const breakdown = calculateBreakdown(cfg?.backplate, cfg?.components, cfg?.material, cfg?.accessories);
     const componentCount = breakdown.totalComponentCount || 0;
     const backplateName = cfg?.backplate?.name || "—";
 
@@ -181,6 +183,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
     } = useContext(pricingContext);
 
     const [isExportingPdf, setIsExportingPdf] = useState(false);
+    const [isBomModalOpen, setIsBomModalOpen] = useState(false);
 
     // GST custom controls
     const [isCustomGst, setIsCustomGst] = useState(() => {
@@ -264,7 +267,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
     // Sum raw subtotals across all boards (no per-board tax)
     const rawGrandSubtotal = cartItems.reduce((sum, item) => {
         const cfg = item.config;
-        const bd = calculateBreakdown(cfg?.backplate, cfg?.components, cfg?.material);
+        const bd = calculateBreakdown(cfg?.backplate, cfg?.components, cfg?.material, cfg?.accessories);
         return sum + (bd.rawSubtotal || 0);
     }, 0);
 
@@ -290,7 +293,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
     }, [removeFromCart]);
 
     // ── Combined PDF ─────────────────────────────────────────────────────────
-    const handleExportPdf = async () => {
+    const handleExportPdf = async (includeBom = true) => {
         if (cartItems.length === 0) return;
         setIsExportingPdf(true);
 
@@ -327,7 +330,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
             for (let i = 0; i < cartItems.length; i++) {
                 const item = cartItems[i];
                 const cfg = item.config;
-                const bd = calculateBreakdown(cfg?.backplate, cfg?.components, cfg?.material);
+                const bd = calculateBreakdown(cfg?.backplate, cfg?.components, cfg?.material, cfg?.accessories);
                 combinedRawSubtotal += bd.rawSubtotal || 0;
 
                 let serialNo = 1;
@@ -382,6 +385,24 @@ export default function CartTab({ onSwitchToBreakdown }) {
                         </tr>`;
                 }
 
+                if (bd.accessoryItems && bd.accessoryItems.length > 0) {
+                    for (const acc of bd.accessoryItems) {
+                        const accName = ACCESSORY_MAP[acc.id]?.name ?? acc.id;
+                        rowsHtml += `
+                            <tr>
+                                <td style="text-align:center;color:#9ca3af;">${serialNo++}</td>
+                                <td>
+                                    <span class="item-name">${accName}</span>
+                                    <span class="item-sub">Board Accessory</span>
+                                </td>
+                                <td class="cat-cell">Accessory</td>
+                                <td style="text-align:center;">${acc.qty}</td>
+                                <td style="text-align:right;">${formatPrice(acc.unitPrice)}</td>
+                                <td class="amount-cell">${formatPrice(acc.totalPrice)}</td>
+                            </tr>`;
+                    }
+                }
+
                 boardSectionsHtml += `
                     <div class="board-section">
                         <div class="board-header">
@@ -395,6 +416,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
                                 <img class="preview-img" src="${item.thumbnail}" alt="${item.name}" />
                             </div>
                         </div>` : ""}
+                        ${includeBom ? `
                         <div class="section-label">Bill of Materials</div>
                         <table class="bom-table">
                             <thead>
@@ -415,6 +437,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
                                 </tr>
                             </tfoot>
                         </table>
+                        ` : ""}
                     </div>`;
             }
 
@@ -422,7 +445,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
 
             const boardSummaryRows = cartItems.map((item, i) => {
                 const cfg = item.config;
-                const bd = calculateBreakdown(cfg?.backplate, cfg?.components, cfg?.material);
+                const bd = calculateBreakdown(cfg?.backplate, cfg?.components, cfg?.material, cfg?.accessories);
                 return `<div class="s-row"><span>Board ${i + 1} \u2014 ${item.name}</span><span class="s-val">${formatPrice(bd.rawSubtotal)}</span></div>`;
             }).join("");
 
@@ -575,7 +598,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
                 <div className={styles.emptyIcon}><ShoppingCart size={24} /></div>
                 <h3>Your cart is empty</h3>
                 <p className={styles.emptyHint}>
-                    Design a board, then use <strong>"Add to Cart"</strong> in Step 5 (Export) to save it here.
+                    Design a board, then use <strong>"Add to Cart"</strong> in Step 6 (Export) to save it here.
                 </p>
             </div>
         );
@@ -748,7 +771,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
                 <button
                     type="button"
                     className={styles.pdfBtn}
-                    onClick={handleExportPdf}
+                    onClick={() => setIsBomModalOpen(true)}
                     disabled={isExportingPdf}
                 >
                     {isExportingPdf ? <Loader2 size={15} className={styles.spinner} /> : <FileText size={15} />}
@@ -760,6 +783,14 @@ export default function CartTab({ onSwitchToBreakdown }) {
                     Clear Cart
                 </button>
             </div>
+
+            <PdfBomModal
+                isOpen={isBomModalOpen}
+                onClose={() => setIsBomModalOpen(false)}
+                onConfirm={handleExportPdf}
+                title="Quotation Options"
+                description={`Choose whether to include the Bill of Materials (BOM) for all ${cartItems.length} boards.`}
+            />
         </div>
     );
 }

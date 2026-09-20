@@ -17,11 +17,13 @@ import { boardContext } from "../context/board";
 import { pricingContext } from "../context/pricing";
 import { cartContext } from "../context/cart";
 import { COMPANY_INFO } from "../data/companyInfo";
+import { ACCESSORY_MAP } from "../data/accessories";
+import PdfBomModal from "../components/modal/PdfBomModal";
 import styles from "./ExportSelector.module.css";
 
 
 export default function ExportSelector() {
-    const { backplate, components, material, downloadConfiguration, importConfigFile, exportConfiguration, resetBoard } = useContext(boardContext);
+    const { backplate, components, material, accessories, downloadConfiguration, importConfigFile, exportConfiguration, resetBoard } = useContext(boardContext);
     const { formatPrice, calculateBreakdown } = useContext(pricingContext);
     const { addToCart, updateCartItem, cartItems, activeCartId } = useContext(cartContext);
 
@@ -30,6 +32,7 @@ export default function ExportSelector() {
     const [isExportingPng, setIsExportingPng] = useState(false);
     const [isExportingJpeg, setIsExportingJpeg] = useState(false);
     const [isExportingPdf, setIsExportingPdf] = useState(false);
+    const [isBomModalOpen, setIsBomModalOpen] = useState(false);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
     const [cartNotice, setCartNotice] = useState(null); // 'added' | 'updated' | 'added_new' | null
 
@@ -117,7 +120,7 @@ export default function ExportSelector() {
         }
     };
 
-    const breakdown = calculateBreakdown(backplate, components, material);
+    const breakdown = calculateBreakdown(backplate, components, material, accessories);
     const hasBackplate = Boolean(backplate?.src);
 
 
@@ -180,7 +183,7 @@ export default function ExportSelector() {
     };
 
     // Print / PDF Quote Generation
-    const handleDownloadPdf = async () => {
+    const handleDownloadPdf = async (includeBom = true) => {
         setIsExportingPdf(true);
         try {
             const node = document.getElementById("switchboard-board-container");
@@ -260,6 +263,26 @@ export default function ExportSelector() {
                         <td class="amount-cell">${formatPrice(breakdown.materialItem.unitPrice)}</td>
                     </tr>
                 `;
+            }
+
+            // 4. Accessory Rows
+            if (breakdown.accessoryItems && breakdown.accessoryItems.length > 0) {
+                for (const item of breakdown.accessoryItems) {
+                    const accName = ACCESSORY_MAP[item.id]?.name ?? item.id;
+                    rowsHtml += `
+                        <tr>
+                            <td style="text-align:center;color:#9ca3af;">${serialNo++}</td>
+                            <td>
+                                <span class="item-name">${accName}</span>
+                                <span class="item-sub">Board Accessory</span>
+                            </td>
+                            <td class="cat-cell">Accessory</td>
+                            <td style="text-align:center;">${item.qty}</td>
+                            <td style="text-align:right;">${formatPrice(item.unitPrice)}</td>
+                            <td class="amount-cell">${formatPrice(item.totalPrice)}</td>
+                        </tr>
+                    `;
+                }
             }
 
             // Resolve company branding logo URL
@@ -550,6 +573,7 @@ export default function ExportSelector() {
                     </div>` : ""}
 
                     <!-- BOM -->
+                    ${includeBom ? `
                     <div class="section-label">Bill of Materials</div>
                     <table class="bom-table">
                         <thead>
@@ -570,6 +594,7 @@ export default function ExportSelector() {
                             </tr>
                         </tfoot>
                     </table>
+                    ` : ""}
 
                     <!-- Summary -->
                     <div class="summary-wrap">
@@ -725,7 +750,7 @@ export default function ExportSelector() {
                     <button
                         type="button"
                         className={styles.actionCard}
-                        onClick={handleDownloadPdf}
+                        onClick={() => setIsBomModalOpen(true)}
                         disabled={!hasBackplate || isExportingPdf}
                     >
                         <div className={`${styles.actionIconWrapper} ${styles.pdfIconWrapper}`}>
@@ -867,6 +892,14 @@ export default function ExportSelector() {
                     )}
                 </div>
             </div>
+
+            <PdfBomModal
+                isOpen={isBomModalOpen}
+                onClose={() => setIsBomModalOpen(false)}
+                onConfirm={handleDownloadPdf}
+                title="Quotation Options"
+                description="Choose whether to include the Bill of Materials (BOM) in your quotation."
+            />
         </div>
     );
 }

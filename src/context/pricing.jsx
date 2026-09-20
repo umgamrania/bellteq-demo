@@ -141,6 +141,13 @@ export default function PricingProvider({ children }) {
         return typeof val === "number" && !isNaN(val) ? val : (DEFAULT_PRICES[key] ?? 0);
     }, [prices]);
 
+    const getAccessoryPrice = useCallback((id) => {
+        if (!id) return 0;
+        const key = `accessory_${id}`;
+        const val = prices[key];
+        return typeof val === "number" && !isNaN(val) ? val : (DEFAULT_PRICES[key] ?? 0);
+    }, [prices]);
+
     // Format number to currency display (INR ₹)
     const formatPrice = useCallback((amount) => {
         const num = Number(amount) || 0;
@@ -176,7 +183,7 @@ export default function PricingProvider({ children }) {
     }, []);
 
     // Calculate full Bill of Materials (BOM) & breakdown with Discount and GST
-    const calculateBreakdown = useCallback((backplate, componentsMap, material) => {
+    const calculateBreakdown = useCallback((backplate, componentsMap, material, accessoriesMap) => {
         // 1. Backplate
         let backplateItem = null;
         let backplateCost = 0;
@@ -246,8 +253,23 @@ export default function PricingProvider({ children }) {
             };
         }
 
+        // 4. Accessories
+        const accessoryItems = [];
+        let accessoriesCost = 0;
+        if (accessoriesMap && typeof accessoriesMap === "object") {
+            for (const [id, value] of Object.entries(accessoriesMap)) {
+                // wifi-chip is boolean; hi-load is a number qty
+                const qty = typeof value === "boolean" ? (value ? 1 : 0) : Math.max(0, Math.round(Number(value) || 0));
+                if (qty === 0) continue;
+                const unitPrice = getAccessoryPrice(id);
+                const totalPrice = unitPrice * qty;
+                accessoriesCost += totalPrice;
+                accessoryItems.push({ id, qty, unitPrice, totalPrice });
+            }
+        }
+
         // Subtotal before discounts
-        const rawSubtotal = backplateCost + componentsSubtotal + materialCost;
+        const rawSubtotal = backplateCost + componentsSubtotal + materialCost + accessoriesCost;
 
         // Discount calculation
         let discountAmount = 0;
@@ -280,11 +302,13 @@ export default function PricingProvider({ children }) {
             backplateItem,
             componentItems,
             materialItem,
+            accessoryItems,
             totalComponentCount: compInstances.length,
             totalSlotsOccupied,
             backplateCost,
             componentsSubtotal,
             materialCost,
+            accessoriesCost,
             rawSubtotal,
             discountAmount,
             discount,
@@ -294,7 +318,7 @@ export default function PricingProvider({ children }) {
             miscCostAmount,
             finalTotal,
         };
-    }, [getBackplatePrice, getComponentPrice, getMaterialPrice, discount, gstRate, miscCost]);
+    }, [getBackplatePrice, getComponentPrice, getMaterialPrice, getAccessoryPrice, discount, gstRate, miscCost]);
 
     return (
         <pricingContext.Provider
@@ -314,6 +338,7 @@ export default function PricingProvider({ children }) {
                 getBackplatePrice,
                 getComponentPrice,
                 getMaterialPrice,
+                getAccessoryPrice,
                 formatPrice,
                 updatePrice,
                 updateAllPrices,
