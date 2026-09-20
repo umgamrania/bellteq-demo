@@ -63,15 +63,6 @@ export const BACKPLATES = [
         "alt": "Backplate design 7"
     },
     {
-        "id": 8,
-        "slots": 16,
-        "rows": 2,
-        "slotWidth": 41.65,
-        "name": "Backplate 8",
-        "src": "./backplates/8.png",
-        "alt": "Backplate design 8"
-    },
-    {
         "id": 9,
         "slots": 18,
         "rows": 3,

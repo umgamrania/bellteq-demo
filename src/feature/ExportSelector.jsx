@@ -274,10 +274,10 @@ export default function ExportSelector() {
                 }
             }
 
+            const webAndEmail = [COMPANY_INFO?.email, COMPANY_INFO?.website].filter(Boolean).join(" &nbsp;·&nbsp; ");
             const contactParts = [];
-            if (COMPANY_INFO?.email) contactParts.push(COMPANY_INFO.email);
+            if (webAndEmail) contactParts.push(webAndEmail);
             if (COMPANY_INFO?.phone) contactParts.push(COMPANY_INFO.phone);
-            if (COMPANY_INFO?.website) contactParts.push(COMPANY_INFO.website);
 
             const docTitle = COMPANY_INFO?.quotationTitle || "QUOTATION";
             const docValidity = COMPANY_INFO?.validity || "30 Days";
@@ -432,29 +432,36 @@ export default function ExportSelector() {
                             width: 100%;
                             border-collapse: collapse;
                             margin-bottom: 18px;
+                            border: 1px solid #d1d5db;
                         }
-                        .bom-table thead tr { background: #111827; }
                         .bom-table th {
-                            color: #f9fafb;
+                            background: #ffffff;
+                            color: #111827;
                             font-size: 9.5px;
                             font-weight: 600;
                             text-transform: uppercase;
-                            letter-spacing: 0.07em;
-                            padding: 8px 10px;
+                            letter-spacing: 0.05em;
+                            padding: 7px 10px;
                             text-align: left;
+                            border: 1px solid #d1d5db;
                         }
                         .bom-table td {
-                            padding: 7px 10px;
+                            padding: 6px 10px;
                             font-size: 11px;
                             color: #1f2937;
-                            border-bottom: 1px solid #f0f0f2;
+                            border-left: 1px solid #d1d5db;
+                            border-right: 1px solid #d1d5db;
+                            border-top: none;
+                            border-bottom: none;
                             vertical-align: top;
+                            background: #ffffff;
+                            font-weight: 400;
                         }
-                        .bom-table tbody tr:nth-child(even) td { background: #fafafa; }
-                        .item-name { display: block; font-weight: 600; color: #111827; }
-                        .item-sub { display: block; font-size: 10px; color: #9ca3af; margin-top: 1px; }
-                        .cat-cell { color: #6b7280; font-size: 10.5px; }
-                        .amount-cell { text-align: right; font-weight: 600; color: #111827; }
+                        .item-name { display: block; font-weight: 400; color: #111827; }
+                        .item-sub { display: block; font-size: 10px; color: #6b7280; margin-top: 1px; }
+                        .cat-cell { color: #4b5563; font-size: 10.5px; font-weight: 400; }
+                        .amount-cell { text-align: right; font-weight: 400; color: #111827; }
+                        .bom-table tfoot td { font-weight: 400; background: #ffffff; border: 1px solid #d1d5db; }
 
                         /* ── Summary ──────────────────────────── */
                         .summary-wrap { display: flex; justify-content: flex-end; }
@@ -556,6 +563,12 @@ export default function ExportSelector() {
                             </tr>
                         </thead>
                         <tbody>${rowsHtml}</tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="5" style="text-align:right;">Board Subtotal</td>
+                                <td class="amount-cell">${formatPrice(breakdown.rawSubtotal)}</td>
+                            </tr>
+                        </tfoot>
                     </table>
 
                     <!-- Summary -->

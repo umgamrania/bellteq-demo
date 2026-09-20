@@ -308,10 +308,10 @@ export default function CartTab({ onSwitchToBreakdown }) {
                 }
             }
 
+            const webAndEmail = [COMPANY_INFO?.email, COMPANY_INFO?.website].filter(Boolean).join(" &nbsp;·&nbsp; ");
             const contactParts = [];
-            if (COMPANY_INFO?.email) contactParts.push(COMPANY_INFO.email);
+            if (webAndEmail) contactParts.push(webAndEmail);
             if (COMPANY_INFO?.phone) contactParts.push(COMPANY_INFO.phone);
-            if (COMPANY_INFO?.website) contactParts.push(COMPANY_INFO.website);
 
             const docTitle = COMPANY_INFO?.quotationTitle || "QUOTATION";
             const docValidity = COMPANY_INFO?.validity || "30 Days";
@@ -408,10 +408,13 @@ export default function CartTab({ onSwitchToBreakdown }) {
                                 </tr>
                             </thead>
                             <tbody>${rowsHtml}</tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" style="text-align:right;">Board Subtotal</td>
+                                    <td class="amount-cell">${formatPrice(bd.rawSubtotal)}</td>
+                                </tr>
+                            </tfoot>
                         </table>
-                        <div class="board-subtotal-row">
-                            Board Subtotal &nbsp;&mdash;&nbsp; <strong>${formatPrice(bd.rawSubtotal)}</strong>
-                        </div>
                     </div>`;
             }
 
@@ -496,17 +499,14 @@ export default function CartTab({ onSwitchToBreakdown }) {
                         .preview-inner { padding: 12px; text-align: center; }
                         .preview-img { max-height: 110px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto; }
                         .section-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-bottom: 0; }
-                        .bom-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
-                        .bom-table thead tr { background: #111827; }
-                        .bom-table th { color: #f9fafb; font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; padding: 8px 10px; text-align: left; }
-                        .bom-table td { padding: 7px 10px; font-size: 11px; color: #1f2937; border-bottom: 1px solid #f0f0f2; vertical-align: top; }
-                        .bom-table tbody tr:nth-child(even) td { background: #fafafa; }
-                        .item-name { display: block; font-weight: 600; color: #111827; }
-                        .item-sub { display: block; font-size: 10px; color: #9ca3af; margin-top: 1px; }
-                        .cat-cell { color: #6b7280; font-size: 10.5px; }
-                        .amount-cell { text-align: right; font-weight: 600; color: #111827; }
-                        .board-subtotal-row { text-align: right; font-size: 11px; color: #6b7280; padding: 6px 0 0; }
-                        .board-subtotal-row strong { color: #111827; }
+                        .bom-table { width: 100%; border-collapse: collapse; margin-bottom: 18px; border: 1px solid #d1d5db; }
+                        .bom-table th { background: #ffffff; color: #111827; font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 7px 10px; text-align: left; border: 1px solid #d1d5db; }
+                        .bom-table td { padding: 6px 10px; font-size: 11px; color: #1f2937; border-left: 1px solid #d1d5db; border-right: 1px solid #d1d5db; border-top: none; border-bottom: none; vertical-align: top; background: #ffffff; font-weight: 400; }
+                        .item-name { display: block; font-weight: 400; color: #111827; }
+                        .item-sub { display: block; font-size: 10px; color: #6b7280; margin-top: 1px; }
+                        .cat-cell { color: #4b5563; font-size: 10.5px; font-weight: 400; }
+                        .amount-cell { text-align: right; font-weight: 400; color: #111827; }
+                        .bom-table tfoot td { font-weight: 400; background: #ffffff; border: 1px solid #d1d5db; }
                         .grand-summary-section { margin-top: 16px; padding-top: 16px; border-top: 2px solid #1a1a2e; }
                         .summary-wrap { display: flex; justify-content: flex-end; }
                         .summary-box { width: 310px; border: 1px solid #e5e7eb; border-radius: 5px; overflow: hidden; }
