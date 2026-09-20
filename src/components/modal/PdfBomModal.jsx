@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { FileText, FileSpreadsheet, X, EyeOff } from "lucide-react";
+import { FileText, FileSpreadsheet, X, EyeOff, Pencil } from "lucide-react";
+import CompanyDetailsModal from "./CompanyDetailsModal";
 import styles from "./PdfBomModal.module.css";
 
 export default function PdfBomModal({
@@ -10,6 +11,9 @@ export default function PdfBomModal({
     title = "PDF Quotation Options",
     description = "Choose whether to include the detailed Bill of Materials (BOM) in the quotation.",
 }) {
+    const [includeCompanyInfo, setIncludeCompanyInfo] = useState(true);
+    const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
+
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === "Escape") onClose();
@@ -21,6 +25,11 @@ export default function PdfBomModal({
     }, [isOpen, onClose]);
 
     if (!isOpen) return null;
+
+    const handleChoice = (includeBom) => {
+        onConfirm(includeBom, includeCompanyInfo);
+        onClose();
+    };
 
     const modalContent = (
         <div className={styles.overlay} onClick={onClose}>
@@ -56,10 +65,7 @@ export default function PdfBomModal({
                     <button
                         type="button"
                         className={styles.choiceCard}
-                        onClick={() => {
-                            onConfirm(true);
-                            onClose();
-                        }}
+                        onClick={() => handleChoice(true)}
                     >
                         <div className={`${styles.cardIcon} ${styles.iconBom}`}>
                             <FileSpreadsheet size={20} />
@@ -72,10 +78,7 @@ export default function PdfBomModal({
                     <button
                         type="button"
                         className={styles.choiceCard}
-                        onClick={() => {
-                            onConfirm(false);
-                            onClose();
-                        }}
+                        onClick={() => handleChoice(false)}
                     >
                         <div className={`${styles.cardIcon} ${styles.iconNoBom}`}>
                             <EyeOff size={20} />
@@ -84,6 +87,30 @@ export default function PdfBomModal({
                             <span className={styles.cardTitle}>Exclude Bill of Materials (BOM)</span>
                         </div>
                     </button>
+
+                    <div className={styles.optionsDivider} />
+
+                    <div className={styles.companyConfigRow}>
+                        <label className={styles.checkboxRow}>
+                            <input
+                                type="checkbox"
+                                checked={includeCompanyInfo}
+                                onChange={(e) => setIncludeCompanyInfo(e.target.checked)}
+                                className={styles.checkbox}
+                            />
+                            <span className={styles.checkboxLabel}>Include company info</span>
+                        </label>
+
+                        <button
+                            type="button"
+                            className={styles.editCompanyBtn}
+                            onClick={() => setIsCompanyModalOpen(true)}
+                            title="Edit company branding, logo, and contact details"
+                        >
+                            <Pencil size={12} />
+                            <span>Edit company details</span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Footer */}
@@ -93,6 +120,11 @@ export default function PdfBomModal({
                     </button>
                 </div>
             </div>
+
+            <CompanyDetailsModal
+                isOpen={isCompanyModalOpen}
+                onClose={() => setIsCompanyModalOpen(false)}
+            />
         </div>
     );
 

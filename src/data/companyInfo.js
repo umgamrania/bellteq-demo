@@ -14,9 +14,6 @@ export const COMPANY_INFO = {
     website: "www.bellateq.com",
     address: "Rajkot",
     
-    // Branding Assets
-    logoSrc: "logo.webp", // Path relative to public directory or full URL
-    
     // Quotation Document Defaults
     quotationTitle: "QUOTATION",
     quotationSubtitle: "PROFORMA ESTIMATE / BILL",

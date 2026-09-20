@@ -18,6 +18,7 @@ import { cartContext } from "../../context/cart";
 import { boardContext } from "../../context/board";
 import { sidebarContext } from "../../context/sidebar";
 import { pricingContext } from "../../context/pricing";
+import { companyContext } from "../../context/company";
 import { COMPANY_INFO } from "../../data/companyInfo";
 import { ACCESSORY_MAP } from "../../data/accessories";
 import PdfBomModal from "../modal/PdfBomModal";
@@ -181,6 +182,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
         miscCost,
         setMiscCost,
     } = useContext(pricingContext);
+    const { companyInfo } = useContext(companyContext) || {};
 
     const [isExportingPdf, setIsExportingPdf] = useState(false);
     const [isBomModalOpen, setIsBomModalOpen] = useState(false);
@@ -293,7 +295,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
     }, [removeFromCart]);
 
     // ── Combined PDF ─────────────────────────────────────────────────────────
-    const handleExportPdf = async (includeBom = true) => {
+    const handleExportPdf = async (includeBom = true, includeCompanyInfo = true) => {
         if (cartItems.length === 0) return;
         setIsExportingPdf(true);
 
@@ -301,27 +303,19 @@ export default function CartTab({ onSwitchToBreakdown }) {
             const today = new Date();
             const dateString = today.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
-            let logoUrl = "";
-            if (COMPANY_INFO?.logoSrc) {
-                const rawLogo = COMPANY_INFO.logoSrc.trim();
-                if (rawLogo.startsWith("http://") || rawLogo.startsWith("https://") || rawLogo.startsWith("data:")) {
-                    logoUrl = rawLogo;
-                } else {
-                    logoUrl = new URL(rawLogo.replace(/^\.\//, "").replace(/^\//, ""), window.location.href).href;
-                }
-            }
+            const activeCompany = companyInfo || COMPANY_INFO;
 
-            const webAndEmail = [COMPANY_INFO?.email, COMPANY_INFO?.website].filter(Boolean).join(" &nbsp;·&nbsp; ");
+            const webAndEmail = [activeCompany?.email, activeCompany?.website].filter(Boolean).join(" &nbsp;·&nbsp; ");
             const contactParts = [];
             if (webAndEmail) contactParts.push(webAndEmail);
-            if (COMPANY_INFO?.phone) contactParts.push(COMPANY_INFO.phone);
+            if (activeCompany?.phone) contactParts.push(activeCompany.phone);
 
-            const docTitle = COMPANY_INFO?.quotationTitle || "QUOTATION";
-            const docValidity = COMPANY_INFO?.validity || "30 Days";
-            const companyName = COMPANY_INFO?.name || "BELLATEQ SMART LIVING";
-            const companyTagline = COMPANY_INFO?.tagline || "";
-            const companyGstin = COMPANY_INFO?.gstin || "";
-            const companyAddress = COMPANY_INFO?.address || "";
+            const docTitle = activeCompany?.quotationTitle || "QUOTATION";
+            const docValidity = activeCompany?.validity || "30 Days";
+            const companyName = activeCompany?.name || "BELLATEQ SMART LIVING";
+            const companyTagline = activeCompany?.tagline || "";
+            const companyGstin = activeCompany?.gstin || "";
+            const companyAddress = activeCompany?.address || "";
 
 
             let boardSectionsHtml = "";
@@ -509,8 +503,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
                             print-color-adjust: exact;
                         }
                         .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 16px; border-bottom: 2px solid #1a1a2e; margin-bottom: 18px; }
-                        .logo-img { height: 56px; width: auto; max-width: 220px; object-fit: contain; display: block; margin-bottom: 8px; filter: brightness(0); }
-                        .company-name { font-size: 11.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #111827; margin-bottom: 2px; }
+                        .company-name { font-size: 16px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #111827; margin-bottom: 3px; }
                         .company-tagline { font-size: 10px; color: #6b7280; margin-bottom: 5px; }
                         .company-contact { font-size: 9.5px; color: #9ca3af; line-height: 1.7; }
                         .company-gstin { font-size: 9.5px; color: #9ca3af; margin-top: 4px; }
@@ -564,12 +557,13 @@ export default function CartTab({ onSwitchToBreakdown }) {
                 <body>
                     <div class="header">
                         <div>
-                            ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="logo-img" />` : ""}
-                            ${!logoUrl ? `<div class="company-name">${companyName}</div>` : ""}
+                            ${includeCompanyInfo ? `
+                            <div class="company-name">${companyName}</div>
                             ${companyTagline ? `<div class="company-tagline">${companyTagline}</div>` : ""}
                             <div class="company-contact">${contactParts.join("<br>")}</div>
                             ${companyGstin ? `<div class="company-gstin">GSTIN: ${companyGstin}</div>` : ""}
                             ${companyAddress ? `<div class="company-gstin">${companyAddress}</div>` : ""}
+                            ` : ""}
                         </div>
                         <div class="header-right">
                             <div class="doc-title">${docTitle}</div>

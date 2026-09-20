@@ -16,6 +16,7 @@ import {
 import { boardContext } from "../context/board";
 import { pricingContext } from "../context/pricing";
 import { cartContext } from "../context/cart";
+import { companyContext } from "../context/company";
 import { COMPANY_INFO } from "../data/companyInfo";
 import { ACCESSORY_MAP } from "../data/accessories";
 import PdfBomModal from "../components/modal/PdfBomModal";
@@ -26,6 +27,7 @@ export default function ExportSelector() {
     const { backplate, components, material, accessories, downloadConfiguration, importConfigFile, exportConfiguration, resetBoard } = useContext(boardContext);
     const { formatPrice, calculateBreakdown } = useContext(pricingContext);
     const { addToCart, updateCartItem, cartItems, activeCartId } = useContext(cartContext);
+    const { companyInfo } = useContext(companyContext) || {};
 
     const jsonFileInputRef = useRef(null);
 
@@ -183,7 +185,7 @@ export default function ExportSelector() {
     };
 
     // Print / PDF Quote Generation
-    const handleDownloadPdf = async (includeBom = true) => {
+    const handleDownloadPdf = async (includeBom = true, includeCompanyInfo = true) => {
         setIsExportingPdf(true);
         try {
             const node = document.getElementById("switchboard-board-container");
@@ -285,29 +287,19 @@ export default function ExportSelector() {
                 }
             }
 
-            // Resolve company branding logo URL
-            let logoUrl = "";
-            if (COMPANY_INFO?.logoSrc) {
-                const rawLogo = COMPANY_INFO.logoSrc.trim();
-                if (rawLogo.startsWith("http://") || rawLogo.startsWith("https://") || rawLogo.startsWith("data:")) {
-                    logoUrl = rawLogo;
-                } else {
-                    const cleanPath = rawLogo.replace(/^\.\//, "").replace(/^\//, "");
-                    logoUrl = new URL(cleanPath, window.location.href).href;
-                }
-            }
+            const activeCompany = companyInfo || COMPANY_INFO;
 
-            const webAndEmail = [COMPANY_INFO?.email, COMPANY_INFO?.website].filter(Boolean).join(" &nbsp;·&nbsp; ");
+            const webAndEmail = [activeCompany?.email, activeCompany?.website].filter(Boolean).join(" &nbsp;·&nbsp; ");
             const contactParts = [];
             if (webAndEmail) contactParts.push(webAndEmail);
-            if (COMPANY_INFO?.phone) contactParts.push(COMPANY_INFO.phone);
+            if (activeCompany?.phone) contactParts.push(activeCompany.phone);
 
-            const docTitle = COMPANY_INFO?.quotationTitle || "QUOTATION";
-            const docValidity = COMPANY_INFO?.validity || "30 Days";
-            const companyName = COMPANY_INFO?.name || "BELLATEQ SMART LIVING";
-            const companyTagline = COMPANY_INFO?.tagline || "";
-            const companyGstin = COMPANY_INFO?.gstin || "";
-            const companyAddress = COMPANY_INFO?.address || "";
+            const docTitle = activeCompany?.quotationTitle || "QUOTATION";
+            const docValidity = activeCompany?.validity || "30 Days";
+            const companyName = activeCompany?.name || "BELLATEQ SMART LIVING";
+            const companyTagline = activeCompany?.tagline || "";
+            const companyGstin = activeCompany?.gstin || "";
+            const companyAddress = activeCompany?.address || "";
 
 
             const printContent = `
@@ -347,22 +339,13 @@ export default function ExportSelector() {
                             border-bottom: 2px solid #1a1a2e;
                             margin-bottom: 18px;
                         }
-                        .logo-img {
-                            height: 56px;
-                            width: auto;
-                            max-width: 220px;
-                            object-fit: contain;
-                            display: block;
-                            margin-bottom: 8px;
-                            filter: brightness(0);
-                        }
                         .company-name {
-                            font-size: 11.5px;
+                            font-size: 16px;
                             font-weight: 700;
-                            letter-spacing: 0.07em;
+                            letter-spacing: 0.04em;
                             text-transform: uppercase;
                             color: #111827;
-                            margin-bottom: 2px;
+                            margin-bottom: 3px;
                         }
                         .company-tagline {
                             font-size: 10px;
@@ -545,12 +528,13 @@ export default function ExportSelector() {
                     <!-- Header -->
                     <div class="header">
                         <div>
-                            ${logoUrl ? `<img src="${logoUrl}" alt="${companyName}" class="logo-img" />` : ""}
-                            ${!logoUrl ? `<div class="company-name">${companyName}</div>` : ""}
+                            ${includeCompanyInfo ? `
+                            <div class="company-name">${companyName}</div>
                             ${companyTagline ? `<div class="company-tagline">${companyTagline}</div>` : ""}
                             <div class="company-contact">${contactParts.join("<br>")}</div>
                             ${companyGstin ? `<div class="company-gstin">GSTIN: ${companyGstin}</div>` : ""}
                             ${companyAddress ? `<div class="company-gstin">${companyAddress}</div>` : ""}
+                            ` : ""}
                         </div>
                         <div class="header-right">
                             <div class="doc-title">${docTitle}</div>
