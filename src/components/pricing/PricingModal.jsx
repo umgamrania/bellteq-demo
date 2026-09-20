@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useRef } from "react";
 import { X, RotateCcw, Search, Check, SlidersHorizontal } from "lucide-react";
 import { pricingContext } from "../../context/pricing";
 import { BACKPLATES } from "../../data/backplates";
@@ -20,6 +20,13 @@ export default function PricingModal() {
     const [activeTab, setActiveTab] = useState("backplates");
     const [searchQuery, setSearchQuery] = useState("");
     const [savedNotice, setSavedNotice] = useState(false);
+    const tabsListRef = useRef(null);
+
+    const handleTabsWheel = (e) => {
+        if (e.deltaY !== 0 && tabsListRef.current) {
+            tabsListRef.current.scrollLeft += e.deltaY;
+        }
+    };
 
     if (!isPricingModalOpen) return null;
 
@@ -125,7 +132,7 @@ export default function PricingModal() {
 
                 {/* Navigation Tabs & Toolbar */}
                 <div className={styles.toolbar}>
-                    <div className={styles.tabsList}>
+                    <div className={styles.tabsList} ref={tabsListRef} onWheel={handleTabsWheel}>
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}

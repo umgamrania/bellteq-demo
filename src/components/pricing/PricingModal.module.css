@@ -18,7 +18,7 @@
 .modal {
     background: #ffffff;
     width: 90%;
-    max-width: 680px;
+    max-width: 720px;
     height: 85vh;
     max-height: 720px;
     border-radius: 16px;
@@ -92,28 +92,46 @@
 }
 
 .toolbar {
-    padding: 10px 20px;
+    padding: 12px 20px 10px;
     background: #f9fafb;
     border-bottom: 1px solid #e5e7eb;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .tabsList {
+    width: 100%;
+    min-width: 0;
     display: flex;
     gap: 6px;
     overflow-x: auto;
-    scrollbar-width: none;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+    -webkit-overflow-scrolling: touch;
 }
 
 .tabsList::-webkit-scrollbar {
-    display: none;
+    height: 4px;
+    display: block;
+}
+
+.tabsList::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.tabsList::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+.tabsList::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
 }
 
 .tabBtn {
+    flex-shrink: 0;
     display: inline-flex;
     align-items: center;
     gap: 6px;
