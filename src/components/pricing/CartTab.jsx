@@ -415,7 +415,15 @@ export default function CartTab({ onSwitchToBreakdown }) {
                             <div class="preview-inner">
                                 <img class="preview-img" src="${item.thumbnail}" alt="${item.name}" />
                             </div>
-                        </div>` : ""}
+                            <div class="preview-footer">
+                                <span class="preview-total-label">Board Total</span>
+                                <span class="preview-total-val">${formatPrice(bd.rawSubtotal)}</span>
+                            </div>
+                        </div>` : `
+                        <div class="preview-footer" style="margin-bottom: 14px; border: 1px solid #e5e7eb; border-radius: 5px;">
+                            <span class="preview-total-label">Board Total</span>
+                            <span class="preview-total-val">${formatPrice(bd.rawSubtotal)}</span>
+                        </div>`}
                         ${includeBom ? `
                         <div class="section-label">Bill of Materials</div>
                         <table class="bom-table">
@@ -522,6 +530,9 @@ export default function CartTab({ onSwitchToBreakdown }) {
                         .preview-label { background: #f3f4f6; border-bottom: 1px solid #e5e7eb; padding: 5px 12px; font-size: 9.5px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: #6b7280; }
                         .preview-inner { padding: 12px; text-align: center; }
                         .preview-img { max-height: 110px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto; }
+                        .preview-footer { background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 6px 14px; display: flex; justify-content: space-between; align-items: center; }
+                        .preview-total-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #4b5563; }
+                        .preview-total-val { font-size: 13px; font-weight: 700; color: #111827; }
                         .section-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-bottom: 0; }
                         .bom-table { width: 100%; border-collapse: collapse; margin-bottom: 18px; border: 1px solid #d1d5db; }
                         .bom-table th { background: #ffffff; color: #111827; font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 7px 10px; text-align: left; border: 1px solid #d1d5db; }
