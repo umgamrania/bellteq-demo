@@ -13,6 +13,11 @@ import {
     Tag,
     Percent,
     Wrench,
+    Wifi,
+    Zap,
+    Plus,
+    Minus,
+    PackagePlus,
 } from "lucide-react";
 import { cartContext } from "../../context/cart";
 import { boardContext } from "../../context/board";
@@ -169,12 +174,15 @@ export default function CartTab({ onSwitchToBreakdown }) {
         updateCartItemName,
         activeCartId,
         setActiveCartId,
+        additionalAccessories,
+        updateAdditionalAccessoryQty,
     } = useContext(cartContext);
     const { loadConfiguration } = useContext(boardContext);
     const { setActiveIdx } = useContext(sidebarContext) || {};
     const {
         formatPrice,
         calculateBreakdown,
+        getAccessoryPrice,
         gstRate,
         setGstRate,
         discount,
@@ -266,12 +274,25 @@ export default function CartTab({ onSwitchToBreakdown }) {
 
     const currentGstSelectValue = isCustomGst ? "custom" : String(gstRate);
 
+    // Accessory unit prices
+    const wifiPrice = getAccessoryPrice ? getAccessoryPrice("wifi-chip") : 500;
+    const hiLoadPrice = getAccessoryPrice ? getAccessoryPrice("hi-load") : 800;
+
+    const additionalWifiQty = additionalAccessories?.["wifi-chip"] || 0;
+    const additionalHiLoadQty = additionalAccessories?.["hi-load"] || 0;
+    const additionalWifiTotal = additionalWifiQty * wifiPrice;
+    const additionalHiLoadTotal = additionalHiLoadQty * hiLoadPrice;
+    const additionalAccessoriesTotal = additionalWifiTotal + additionalHiLoadTotal;
+
     // Sum raw subtotals across all boards (no per-board tax)
-    const rawGrandSubtotal = cartItems.reduce((sum, item) => {
+    const rawBoardsSubtotal = cartItems.reduce((sum, item) => {
         const cfg = item.config;
         const bd = calculateBreakdown(cfg?.backplate, cfg?.components, cfg?.material, cfg?.accessories);
         return sum + (bd.rawSubtotal || 0);
     }, 0);
+
+    // Combined subtotal including additional accessories
+    const rawGrandSubtotal = rawBoardsSubtotal + additionalAccessoriesTotal;
 
     // Apply tax/discount/misc once on the combined subtotal
     const { discountAmount, taxableAmount, gstAmount, miscCostAmount, finalTotal: cartFinalTotal } =
@@ -443,6 +464,84 @@ export default function CartTab({ onSwitchToBreakdown }) {
                     </div>`;
             }
 
+            if (additionalAccessoriesTotal > 0) {
+                let accSerialNo = 1;
+                let accRowsHtml = "";
+
+                if (additionalWifiQty > 0) {
+                    accRowsHtml += `
+                        <tr>
+                            <td style="text-align:center;color:#9ca3af;">${accSerialNo++}</td>
+                            <td>
+                                <span class="item-name">WiFi Chip</span>
+                                <span class="item-sub">Wi-Fi automation module for smart control</span>
+                            </td>
+                            <td class="cat-cell">Accessory</td>
+                            <td style="text-align:center;">${additionalWifiQty}</td>
+                            <td style="text-align:right;">${formatPrice(wifiPrice)}</td>
+                            <td class="amount-cell">${formatPrice(additionalWifiTotal)}</td>
+                        </tr>`;
+                }
+
+                if (additionalHiLoadQty > 0) {
+                    accRowsHtml += `
+                        <tr>
+                            <td style="text-align:center;color:#9ca3af;">${accSerialNo++}</td>
+                            <td>
+                                <span class="item-name">Hi Load</span>
+                                <span class="item-sub">High-load capacity relay cell</span>
+                            </td>
+                            <td class="cat-cell">Accessory</td>
+                            <td style="text-align:center;">${additionalHiLoadQty}</td>
+                            <td style="text-align:right;">${formatPrice(hiLoadPrice)}</td>
+                            <td class="amount-cell">${formatPrice(additionalHiLoadTotal)}</td>
+                        </tr>`;
+                }
+
+                boardSectionsHtml += `
+                    <div class="board-section">
+                        <div class="board-header">
+                            <span class="board-num">Accessories</span>
+                            <span class="board-name">Additional Accessories</span>
+                        </div>
+                        ${includeBom ? `
+                        <div class="section-label">Bill of Materials</div>
+                        <table class="bom-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:5%;text-align:center;">#</th>
+                                    <th style="width:43%;">Description</th>
+                                    <th style="width:16%;">Category</th>
+                                    <th style="width:8%;text-align:center;">Qty</th>
+                                    <th style="width:13%;text-align:right;">Unit Rate</th>
+                                    <th style="width:15%;text-align:right;">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>${accRowsHtml}</tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" style="text-align:right;">Additional Accessories Subtotal</td>
+                                    <td class="amount-cell">${formatPrice(additionalAccessoriesTotal)}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        ` : `
+                        <div class="preview-footer" style="margin-bottom: 14px; border: 1px solid #e5e7eb; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; padding: 10px 14px;">
+                            <div>
+                                ${additionalWifiQty > 0 ? `<div style="font-size: 11px; color: #374151;"><strong>WiFi Chip:</strong> ${additionalWifiQty} unit${additionalWifiQty > 1 ? "s" : ""} @ ${formatPrice(wifiPrice)}</div>` : ""}
+                                ${additionalHiLoadQty > 0 ? `<div style="font-size: 11px; color: #374151; margin-top: 3px;"><strong>Hi Load:</strong> ${additionalHiLoadQty} unit${additionalHiLoadQty > 1 ? "s" : ""} @ ${formatPrice(hiLoadPrice)}</div>` : ""}
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="preview-total-label" style="display: block;">Accessories Subtotal</span>
+                                <span class="preview-total-val">${formatPrice(additionalAccessoriesTotal)}</span>
+                            </div>
+                        </div>
+                        `}
+                    </div>`;
+
+                combinedRawSubtotal += additionalAccessoriesTotal;
+            }
+
             const cartTax = applyCartTax(combinedRawSubtotal, discount, gstRate, miscCost);
 
             const boardSummaryRows = cartItems.map((item, i) => {
@@ -451,13 +550,18 @@ export default function CartTab({ onSwitchToBreakdown }) {
                 return `<div class="s-row"><span>Board ${i + 1} \u2014 ${item.name}</span><span class="s-val">${formatPrice(bd.rawSubtotal)}</span></div>`;
             }).join("");
 
+            const accessoriesSummaryRow = additionalAccessoriesTotal > 0
+                ? `<div class="s-row"><span>Additional Accessories</span><span class="s-val">${formatPrice(additionalAccessoriesTotal)}</span></div>`
+                : "";
+
             const grandSummaryHtml = `
                 <div class="grand-summary-section">
                     <div class="summary-wrap">
                         <div class="summary-box">
-                            <div class="summary-header">Price Breakdown \u2014 ${cartItems.length} Board${cartItems.length !== 1 ? "s" : ""}</div>
+                            <div class="summary-header">Price Breakdown \u2014 ${cartItems.length} Board${cartItems.length !== 1 ? "s" : ""}${additionalAccessoriesTotal > 0 ? " + Accessories" : ""}</div>
                             <div class="summary-body">
                                 ${boardSummaryRows}
+                                ${accessoriesSummaryRow}
                                 <div class="s-rule"></div>
                                 <div class="s-row"><span>Gross Subtotal</span><span class="s-val">${formatPrice(combinedRawSubtotal)}</span></div>
                                 ${cartTax.discountAmount > 0 ? `
@@ -570,6 +674,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
                             <table class="meta-table">
                                 <tr><td class="meta-key">Date</td><td class="meta-val">${dateString}</td></tr>
                                 <tr><td class="meta-key">Boards</td><td class="meta-val">${cartItems.length}</td></tr>
+                                ${additionalAccessoriesTotal > 0 ? `<tr><td class="meta-key">Accessories</td><td class="meta-val">${additionalWifiQty + additionalHiLoadQty} unit${(additionalWifiQty + additionalHiLoadQty) > 1 ? "s" : ""}</td></tr>` : ""}
                                 <tr><td class="meta-key">Valid For</td><td class="meta-val">${docValidity}</td></tr>
                             </table>
                         </div>
@@ -625,6 +730,96 @@ export default function CartTab({ onSwitchToBreakdown }) {
                         calculateBreakdown={calculateBreakdown}
                     />
                 ))}
+
+                {/* Additional Accessories Card */}
+                <div className={styles.additionalAccessoriesCard}>
+                    <div className={styles.additionalAccessoriesHeader}>
+                        <div className={styles.additionalAccessoriesTitleGroup}>
+                            <PackagePlus size={14} className={styles.additionalAccessoriesIcon} />
+                            <span className={styles.additionalAccessoriesTitle}>Additional Accessories</span>
+                        </div>
+                        {additionalAccessoriesTotal > 0 && (
+                            <span className={styles.additionalAccessoriesBadge}>
+                                +{formatPrice(additionalAccessoriesTotal)}
+                            </span>
+                        )}
+                    </div>
+                    <p className={styles.additionalAccessoriesHint}>
+                        Add extra unassigned accessories to the overall quotation.
+                    </p>
+
+                    <div className={styles.additionalAccessoriesList}>
+                        {/* WiFi Chip */}
+                        <div className={`${styles.accRow} ${additionalWifiQty > 0 ? styles.accRowActive : ""}`}>
+                            <div className={styles.accLeft}>
+                                <div className={`${styles.accIconBox} ${additionalWifiQty > 0 ? styles.accIconBoxActive : ""}`}>
+                                    <Wifi size={14} />
+                                </div>
+                                <div className={styles.accInfo}>
+                                    <span className={styles.accName}>WiFi Chip</span>
+                                    <span className={styles.accPrice}>{formatPrice(wifiPrice)} each</span>
+                                </div>
+                            </div>
+                            <div className={styles.accStepper}>
+                                <button
+                                    type="button"
+                                    className={styles.accStepBtn}
+                                    onClick={() => updateAdditionalAccessoryQty("wifi-chip", additionalWifiQty - 1)}
+                                    disabled={additionalWifiQty <= 0}
+                                    aria-label="Decrease WiFi Chip"
+                                >
+                                    <Minus size={12} />
+                                </button>
+                                <span className={`${styles.accQty} ${additionalWifiQty > 0 ? styles.accQtyActive : ""}`}>
+                                    {additionalWifiQty}
+                                </span>
+                                <button
+                                    type="button"
+                                    className={styles.accStepBtn}
+                                    onClick={() => updateAdditionalAccessoryQty("wifi-chip", additionalWifiQty + 1)}
+                                    aria-label="Increase WiFi Chip"
+                                >
+                                    <Plus size={12} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Hi Load Cell */}
+                        <div className={`${styles.accRow} ${additionalHiLoadQty > 0 ? styles.accRowActive : ""}`}>
+                            <div className={styles.accLeft}>
+                                <div className={`${styles.accIconBox} ${additionalHiLoadQty > 0 ? styles.accIconBoxActive : ""}`}>
+                                    <Zap size={14} />
+                                </div>
+                                <div className={styles.accInfo}>
+                                    <span className={styles.accName}>Hi Load</span>
+                                    <span className={styles.accPrice}>{formatPrice(hiLoadPrice)} each</span>
+                                </div>
+                            </div>
+                            <div className={styles.accStepper}>
+                                <button
+                                    type="button"
+                                    className={styles.accStepBtn}
+                                    onClick={() => updateAdditionalAccessoryQty("hi-load", additionalHiLoadQty - 1)}
+                                    disabled={additionalHiLoadQty <= 0}
+                                    aria-label="Decrease Hi Load"
+                                >
+                                    <Minus size={12} />
+                                </button>
+                                <span className={`${styles.accQty} ${additionalHiLoadQty > 0 ? styles.accQtyActive : ""}`}>
+                                    {additionalHiLoadQty}
+                                </span>
+                                <button
+                                    type="button"
+                                    className={styles.accStepBtn}
+                                    onClick={() => updateAdditionalAccessoryQty("hi-load", additionalHiLoadQty + 1)}
+                                    aria-label="Increase Hi Load"
+                                >
+                                    <Plus size={12} />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div className={styles.cartFooter}>
@@ -732,9 +927,23 @@ export default function CartTab({ onSwitchToBreakdown }) {
                 {/* Combined quotation summary card */}
                 <div className={styles.taxSummaryCard}>
                     <div className={styles.taxRow}>
-                        <span className={styles.taxLabel}>Subtotal ({cartCount} board{cartCount !== 1 ? "s" : ""})</span>
-                        <span className={styles.taxValue}>{formatPrice(rawGrandSubtotal)}</span>
+                        <span className={styles.taxLabel}>Boards Subtotal ({cartCount})</span>
+                        <span className={styles.taxValue}>{formatPrice(rawBoardsSubtotal)}</span>
                     </div>
+
+                    {additionalAccessoriesTotal > 0 && (
+                        <div className={styles.taxRow}>
+                            <span className={styles.taxLabel}>Additional Accessories</span>
+                            <span className={styles.taxValue}>+{formatPrice(additionalAccessoriesTotal)}</span>
+                        </div>
+                    )}
+
+                    {additionalAccessoriesTotal > 0 && (
+                        <div className={styles.taxRow} style={{ color: "#374151", fontWeight: 600 }}>
+                            <span className={styles.taxLabel} style={{ color: "#374151", fontWeight: 600 }}>Subtotal</span>
+                            <span className={styles.taxValue}>{formatPrice(rawGrandSubtotal)}</span>
+                        </div>
+                    )}
 
                     {discountAmount > 0 && (
                         <div className={`${styles.taxRow} ${styles.discountRow}`}>

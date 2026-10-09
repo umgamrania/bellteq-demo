@@ -3,6 +3,7 @@ import { createContext, useState, useCallback, useEffect } from "react";
 export const cartContext = createContext(null);
 
 const STORAGE_KEY_CART = "myob_cart_v1";
+const STORAGE_KEY_ADDITIONAL_ACC = "myob_additional_acc_v1";
 
 export default function CartProvider({ children }) {
     const [cartItems, setCartItems] = useState(() => {
@@ -16,6 +17,24 @@ export default function CartProvider({ children }) {
             console.error("Failed to load cart from localStorage", e);
         }
         return [];
+    });
+
+    const [additionalAccessories, setAdditionalAccessories] = useState(() => {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY_ADDITIONAL_ACC);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed && typeof parsed === "object") {
+                    return {
+                        "wifi-chip": Math.max(0, parseInt(parsed["wifi-chip"], 10) || 0),
+                        "hi-load": Math.max(0, parseInt(parsed["hi-load"], 10) || 0),
+                    };
+                }
+            }
+        } catch (e) {
+            console.error("Failed to load additional accessories from localStorage", e);
+        }
+        return { "wifi-chip": 0, "hi-load": 0 };
     });
 
     // In-memory only: resets to null on page refresh
@@ -99,13 +118,38 @@ export default function CartProvider({ children }) {
         setActiveCartId((prev) => (prev === cartId ? null : prev));
     }, []);
 
+    /** Update additional accessory quantity */
+    const updateAdditionalAccessoryQty = useCallback((id, qty) => {
+        setAdditionalAccessories((prev) => {
+            const validQty = Math.max(0, parseInt(qty, 10) || 0);
+            const updated = { ...prev, [id]: validQty };
+            try {
+                localStorage.setItem(STORAGE_KEY_ADDITIONAL_ACC, JSON.stringify(updated));
+            } catch (e) {
+                console.error("Failed to save additional accessories to localStorage", e);
+            }
+            return updated;
+        });
+    }, []);
+
+    /** Reset additional accessories */
+    const resetAdditionalAccessories = useCallback(() => {
+        setAdditionalAccessories({ "wifi-chip": 0, "hi-load": 0 });
+        try {
+            localStorage.removeItem(STORAGE_KEY_ADDITIONAL_ACC);
+        } catch (e) {
+            console.error("Failed to clear additional accessories from localStorage", e);
+        }
+    }, []);
+
     /** Clear all items (with confirmation) */
     const clearCart = useCallback(() => {
         if (window.confirm("Remove all boards from the cart?")) {
             setCartItems([]);
             setActiveCartId(null);
+            resetAdditionalAccessories();
         }
-    }, [setActiveCartId]);
+    }, [setActiveCartId, resetAdditionalAccessories]);
 
     const cartCount = cartItems.length;
 
@@ -121,6 +165,9 @@ export default function CartProvider({ children }) {
                 updateCartItemName,
                 removeFromCart,
                 clearCart,
+                additionalAccessories,
+                updateAdditionalAccessoryQty,
+                resetAdditionalAccessories,
             }}
         >
             {children}
