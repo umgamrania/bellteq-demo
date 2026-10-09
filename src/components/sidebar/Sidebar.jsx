@@ -57,6 +57,7 @@ export default function Sidebar({
     return (
         <nav className={`${styles.sidebar} ${!isMobileExpanded ? styles.mobileCollapsed : ""}`}>
             <div className={styles.heading} onClick={() => setIsMobileExpanded((prev) => !prev)}>
+                <img src="/logo-small.webp" alt="Logo" className={styles.sidebarLogo} />
                 <div className={styles.headingContent}>
                     <span className={styles.stepBadge}>
                         Step {activeIdx + 1} of {childArray.length}

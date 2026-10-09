@@ -18,6 +18,9 @@ import {
     Plus,
     Minus,
     PackagePlus,
+    ChevronDown,
+    Download,
+    Upload,
 } from "lucide-react";
 import { cartContext } from "../../context/cart";
 import { boardContext } from "../../context/board";
@@ -176,6 +179,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
         setActiveCartId,
         additionalAccessories,
         updateAdditionalAccessoryQty,
+        loadCartFromSnapshot,
     } = useContext(cartContext);
     const { loadConfiguration } = useContext(boardContext);
     const { setActiveIdx } = useContext(sidebarContext) || {};
@@ -194,6 +198,70 @@ export default function CartTab({ onSwitchToBreakdown }) {
 
     const [isExportingPdf, setIsExportingPdf] = useState(false);
     const [isBomModalOpen, setIsBomModalOpen] = useState(false);
+    const [isTaxControlsOpen, setIsTaxControlsOpen] = useState(false);
+
+    // Ref for the hidden file input used by "Load Cart"
+    const loadJsonInputRef = useRef(null);
+
+    // ── Save cart as JSON ──────────────────────────────────────────────
+    const handleSaveCartJson = useCallback(() => {
+        const snapshot = {
+            version: 1,
+            savedAt: new Date().toISOString(),
+            cartItems,
+            additionalAccessories,
+            pricing: { gstRate, discount, miscCost },
+        };
+        const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const dateStr = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
+        a.href = url;
+        a.download = `myob-cart-${dateStr}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [cartItems, additionalAccessories, gstRate, discount, miscCost]);
+
+    // ── Load cart from JSON ────────────────────────────────────────────
+    const handleLoadCartJson = useCallback((e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        // Reset so the same file can be re-selected if needed
+        e.target.value = "";
+
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            try {
+                const snapshot = JSON.parse(evt.target.result);
+                if (!snapshot || !Array.isArray(snapshot.cartItems)) {
+                    alert("Invalid cart file — could not find cart data.");
+                    return;
+                }
+                const boardCount = snapshot.cartItems.length;
+                const confirmed = window.confirm(
+                    `Load cart from file?\n\n` +
+                    `This will replace your current cart (${cartCount} board${cartCount !== 1 ? "s" : ""}) ` +
+                    `with the saved cart (${boardCount} board${boardCount !== 1 ? "s" : ""}).\n\n` +
+                    `Pricing settings (discount, GST, misc cost) will also be restored.`
+                );
+                if (!confirmed) return;
+
+                // Restore cart items + accessories
+                loadCartFromSnapshot(snapshot);
+
+                // Restore pricing settings if present
+                if (snapshot.pricing) {
+                    const { gstRate: savedGst, discount: savedDiscount, miscCost: savedMisc } = snapshot.pricing;
+                    if (typeof savedGst === "number") setGstRate(savedGst);
+                    if (savedDiscount && typeof savedDiscount.value === "number") setDiscount(savedDiscount);
+                    if (typeof savedMisc === "number") setMiscCost(savedMisc);
+                }
+            } catch {
+                alert("Failed to read the cart file — make sure it's a valid MYOB cart JSON.");
+            }
+        };
+        reader.readAsText(file);
+    }, [cartCount, loadCartFromSnapshot, setGstRate, setDiscount, setMiscCost]);
 
     // GST custom controls
     const [isCustomGst, setIsCustomGst] = useState(() => {
@@ -711,6 +779,21 @@ export default function CartTab({ onSwitchToBreakdown }) {
                 <p className={styles.emptyHint}>
                     Design a board, then use <strong>"Add to Cart"</strong> in Step 6 (Export) to save it here.
                 </p>
+                <input
+                    ref={loadJsonInputRef}
+                    type="file"
+                    accept=".json,application/json"
+                    style={{ display: "none" }}
+                    onChange={handleLoadCartJson}
+                />
+                <button
+                    type="button"
+                    className={styles.emptyLoadBtn}
+                    onClick={() => loadJsonInputRef.current?.click()}
+                >
+                    <Upload size={14} />
+                    Load Saved Cart
+                </button>
             </div>
         );
     }
@@ -825,101 +908,120 @@ export default function CartTab({ onSwitchToBreakdown }) {
             <div className={styles.cartFooter}>
                 {/* Quotation-level Discount & GST Controls */}
                 <div className={styles.taxControlsCard}>
-                    {/* Discount Selector */}
-                    <div className={styles.controlRow}>
-                        <div className={styles.controlLabel}>
+                    {/* Mobile-only collapsible toggle header */}
+                    <button
+                        type="button"
+                        className={styles.taxControlsToggle}
+                        onClick={() => setIsTaxControlsOpen((o) => !o)}
+                        aria-expanded={isTaxControlsOpen}
+                    >
+                        <span className={styles.taxControlsToggleLabel}>
                             <Tag size={13} className={styles.controlIcon} />
-                            <span>Discount</span>
-                        </div>
-                        <div className={styles.controlInputsGroup}>
-                            <select
-                                value={discountMode}
-                                onChange={handleDiscountSelectChange}
-                                className={styles.selectInput}
-                            >
-                                <option value="none">No Discount</option>
-                                <option value="5%">5% Off</option>
-                                <option value="10%">10% Off</option>
-                                <option value="15%">15% Off</option>
-                                <option value="20%">20% Off</option>
-                                <option value="custom_percent">Custom %</option>
-                                <option value="custom_flat">Custom ₹</option>
-                            </select>
+                            Discount, Costs &amp; GST
+                        </span>
+                        <ChevronDown
+                            size={15}
+                            className={`${styles.taxControlsChevron} ${isTaxControlsOpen ? styles.taxControlsChevronOpen : ""}`}
+                        />
+                    </button>
 
-                            {(discountMode === "custom_percent" || discountMode === "custom_flat") && (
-                                <div className={styles.inlineNumberInputWrapper}>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        max={discountMode === "custom_percent" ? 100 : undefined}
-                                        step={discountMode === "custom_percent" ? "1" : "50"}
-                                        value={customDiscountInput}
-                                        onChange={handleCustomDiscountInputChange}
-                                        placeholder={discountMode === "custom_percent" ? "20" : "10"}
-                                        className={styles.inlineNumberInput}
-                                    />
-                                    <span className={styles.inputSuffix}>
-                                        {discountMode === "custom_percent" ? "%" : "₹"}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                    <div className={`${styles.taxControlsBody} ${isTaxControlsOpen ? styles.taxControlsBodyOpen : ""}`}>
+                        {/* Discount Selector */}
+                        <div className={styles.controlRow}>
+                            <div className={styles.controlLabel}>
+                                <Tag size={13} className={styles.controlIcon} />
+                                <span>Discount</span>
+                            </div>
+                            <div className={styles.controlInputsGroup}>
+                                <select
+                                    value={discountMode}
+                                    onChange={handleDiscountSelectChange}
+                                    className={styles.selectInput}
+                                >
+                                    <option value="none">No Discount</option>
+                                    <option value="5%">5% Off</option>
+                                    <option value="10%">10% Off</option>
+                                    <option value="15%">15% Off</option>
+                                    <option value="20%">20% Off</option>
+                                    <option value="custom_percent">Custom %</option>
+                                    <option value="custom_flat">Custom ₹</option>
+                                </select>
 
-                    {/* Misc. Costs Row */}
-                    <div className={styles.controlRow}>
-                        <div className={styles.controlLabel}>
-                            <Wrench size={13} className={styles.controlIcon} />
-                            <span>Misc. Costs</span>
+                                {(discountMode === "custom_percent" || discountMode === "custom_flat") && (
+                                    <div className={styles.inlineNumberInputWrapper}>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max={discountMode === "custom_percent" ? 100 : undefined}
+                                            step={discountMode === "custom_percent" ? "1" : "50"}
+                                            value={customDiscountInput}
+                                            onChange={handleCustomDiscountInputChange}
+                                            placeholder={discountMode === "custom_percent" ? "20" : "10"}
+                                            className={styles.inlineNumberInput}
+                                        />
+                                        <span className={styles.inputSuffix}>
+                                            {discountMode === "custom_percent" ? "%" : "₹"}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        <div className={styles.miscInputWrapper}>
-                            <span className={styles.inputSuffix}>₹</span>
-                            <input
-                                type="number"
-                                min="0"
-                                step="10"
-                                value={miscCostInput}
-                                onChange={handleMiscCostChange}
-                                placeholder="0"
-                                className={styles.inlineNumberInput}
-                            />
-                        </div>
-                    </div>
 
-                    {/* GST Rate Selector */}
-                    <div className={`${styles.controlRow} ${styles.gstControlRow}`}>
-                        <div className={styles.controlLabel}>
-                            <Percent size={13} className={styles.controlIcon} />
-                            <span>GST</span>
+                        {/* Misc. Costs Row */}
+                        <div className={styles.controlRow}>
+                            <div className={styles.controlLabel}>
+                                <Wrench size={13} className={styles.controlIcon} />
+                                <span>Misc. Costs</span>
+                            </div>
+                            <div className={styles.miscInputWrapper}>
+                                <span className={styles.inputSuffix}>₹</span>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="10"
+                                    value={miscCostInput}
+                                    onChange={handleMiscCostChange}
+                                    placeholder="0"
+                                    className={styles.inlineNumberInput}
+                                />
+                            </div>
                         </div>
-                        <div className={styles.controlInputsGroup}>
-                            <select
-                                value={currentGstSelectValue}
-                                onChange={handleGstSelectChange}
-                                className={styles.selectInput}
-                            >
-                                {GST_OPTIONS.map((opt) => (
-                                    <option key={opt.label} value={String(opt.value)}>
-                                        {opt.label}
-                                    </option>
-                                ))}
-                            </select>
 
-                            {isCustomGst && (
-                                <div className={styles.inlineNumberInputWrapper}>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        step="0.5"
-                                        value={customGstInput}
-                                        onChange={handleCustomGstInputChange}
-                                        placeholder="00"
-                                        className={styles.inlineNumberInput}
-                                    />
-                                    <span className={styles.inputSuffix}>%</span>
-                                </div>
-                            )}
+                        {/* GST Rate Selector */}
+                        <div className={`${styles.controlRow} ${styles.gstControlRow}`}>
+                            <div className={styles.controlLabel}>
+                                <Percent size={13} className={styles.controlIcon} />
+                                <span>GST</span>
+                            </div>
+                            <div className={styles.controlInputsGroup}>
+                                <select
+                                    value={currentGstSelectValue}
+                                    onChange={handleGstSelectChange}
+                                    className={styles.selectInput}
+                                >
+                                    {GST_OPTIONS.map((opt) => (
+                                        <option key={opt.label} value={String(opt.value)}>
+                                            {opt.label}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {isCustomGst && (
+                                    <div className={styles.inlineNumberInputWrapper}>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            step="0.5"
+                                            value={customGstInput}
+                                            onChange={handleCustomGstInputChange}
+                                            placeholder="00"
+                                            className={styles.inlineNumberInput}
+                                        />
+                                        <span className={styles.inputSuffix}>%</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -994,6 +1096,37 @@ export default function CartTab({ onSwitchToBreakdown }) {
                     {isExportingPdf ? <Loader2 size={15} className={styles.spinner} /> : <FileText size={15} />}
                     {isExportingPdf ? "Generating…" : "PDF Quotation"}
                 </button>
+
+                {/* Save / Load cart JSON */}
+                <div className={styles.cartJsonBtnRow}>
+                    <button
+                        type="button"
+                        className={styles.cartJsonBtn}
+                        onClick={handleSaveCartJson}
+                        title="Download the entire cart as a JSON file"
+                    >
+                        <Download size={13} />
+                        Save Cart
+                    </button>
+
+                    {/* Hidden file input triggered by the Load button */}
+                    <input
+                        ref={loadJsonInputRef}
+                        type="file"
+                        accept=".json,application/json"
+                        style={{ display: "none" }}
+                        onChange={handleLoadCartJson}
+                    />
+                    <button
+                        type="button"
+                        className={styles.cartJsonBtn}
+                        onClick={() => loadJsonInputRef.current?.click()}
+                        title="Load a previously saved cart JSON file"
+                    >
+                        <Upload size={13} />
+                        Load Cart
+                    </button>
+                </div>
 
                 <button type="button" className={styles.clearBtn} onClick={clearCart}>
                     <RotateCcw size={12} />

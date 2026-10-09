@@ -149,7 +149,31 @@ export default function CartProvider({ children }) {
             setActiveCartId(null);
             resetAdditionalAccessories();
         }
-    }, [setActiveCartId, resetAdditionalAccessories]);
+    }, [setActiveCartId]);
+    // }, [setActiveCartId, resetAdditionalAccessories]);
+
+    /**
+     * Bulk-replace the entire cart from a parsed cart-snapshot object.
+     * @param {{ cartItems: object[], additionalAccessories: object }} snapshot
+     */
+    const loadCartFromSnapshot = useCallback((snapshot) => {
+        const items = Array.isArray(snapshot.cartItems) ? snapshot.cartItems : [];
+        const acc = snapshot.additionalAccessories && typeof snapshot.additionalAccessories === "object"
+            ? {
+                "wifi-chip": Math.max(0, parseInt(snapshot.additionalAccessories["wifi-chip"], 10) || 0),
+                "hi-load": Math.max(0, parseInt(snapshot.additionalAccessories["hi-load"], 10) || 0),
+            }
+            : { "wifi-chip": 0, "hi-load": 0 };
+
+        setCartItems(items);
+        setActiveCartId(null);
+        setAdditionalAccessories(acc);
+        try {
+            localStorage.setItem(STORAGE_KEY_ADDITIONAL_ACC, JSON.stringify(acc));
+        } catch (e) {
+            console.error("Failed to persist additional accessories after cart load", e);
+        }
+    }, []);
 
     const cartCount = cartItems.length;
 
@@ -168,6 +192,7 @@ export default function CartProvider({ children }) {
                 additionalAccessories,
                 updateAdditionalAccessoryQty,
                 resetAdditionalAccessories,
+                loadCartFromSnapshot,
             }}
         >
             {children}

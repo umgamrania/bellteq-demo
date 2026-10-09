@@ -65,6 +65,29 @@
     color: #374151;
 }
 
+.emptyLoadBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 7px 16px;
+    border-radius: 7px;
+    background: #f9fafb;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    outline: none;
+}
+
+.emptyLoadBtn:hover {
+    background: #f0f9ff;
+    color: #0369a1;
+    border-color: #7dd3fc;
+}
+
 /* ── Cart Item Card ─────────────────────────────────────────────── */
 .cartItem {
     display: flex;
@@ -420,6 +443,37 @@
     to { transform: rotate(360deg); }
 }
 
+/* ── Save / Load Cart JSON buttons ───────────────────────────────── */
+.cartJsonBtnRow {
+    display: flex;
+    gap: 6px;
+}
+
+.cartJsonBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    background: #f9fafb;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    outline: none;
+    white-space: nowrap;
+}
+
+.cartJsonBtn:hover {
+    background: #f0f9ff;
+    color: #0369a1;
+    border-color: #7dd3fc;
+}
+
 /* ── Discount & GST Controls Box ──────────────────────────────────── */
 .taxControlsCard {
     background: #ffffff;
@@ -552,13 +606,71 @@
     text-align: left;
 }
 
+/* ── Collapsible Tax Controls Card ───────────────────────────────── */
+
+/* Toggle button — hidden on desktop, always-visible on mobile */
+.taxControlsToggle {
+    display: none;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.taxControlsToggleLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.taxControlsChevron {
+    color: #6b7280;
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+}
+
+.taxControlsChevronOpen {
+    transform: rotate(180deg);
+}
+
+/* Body — always visible on desktop */
+.taxControlsBody {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 @media (max-width: 1023px) {
     .cartFooter {
         padding-bottom: max(20px, env(safe-area-inset-bottom));
     }
 
     .taxControlsCard {
+        gap: 0;
+        padding: 10px 12px;
+    }
+
+    /* Show the toggle button on mobile */
+    .taxControlsToggle {
+        display: flex;
+    }
+
+    /* Body hidden by default on mobile; shown when open */
+    .taxControlsBody {
+        display: none;
         gap: 12px;
+        margin-top: 12px;
+    }
+
+    .taxControlsBodyOpen {
+        display: flex;
     }
 
     .controlRow {
