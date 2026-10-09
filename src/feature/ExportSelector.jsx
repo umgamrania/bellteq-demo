@@ -186,6 +186,19 @@ export default function ExportSelector() {
 
     // Print / PDF Quote Generation
     const handleDownloadPdf = async (includeBom = true, includeCompanyInfo = true) => {
+        const activeCompany = companyInfo || COMPANY_INFO;
+        const docTitle = activeCompany?.quotationTitle || "QUOTATION";
+        const companyName = activeCompany?.name || "BELLATEQ SMART LIVING";
+        const defaultName = activeCartItem?.name
+            ? `${activeCartItem.name} Quotation`
+            : `${companyName} - ${docTitle}`;
+
+        const userInput = window.prompt("Enter a name for the PDF file:", defaultName);
+        if (userInput === null) {
+            return;
+        }
+        const pdfName = userInput.trim() || defaultName;
+
         setIsExportingPdf(true);
         try {
             const node = document.getElementById("switchboard-board-container");
@@ -287,16 +300,12 @@ export default function ExportSelector() {
                 }
             }
 
-            const activeCompany = companyInfo || COMPANY_INFO;
-
             const webAndEmail = [activeCompany?.email, activeCompany?.website].filter(Boolean).join(" &nbsp;·&nbsp; ");
             const contactParts = [];
             if (webAndEmail) contactParts.push(webAndEmail);
             if (activeCompany?.phone) contactParts.push(activeCompany.phone);
 
-            const docTitle = activeCompany?.quotationTitle || "QUOTATION";
             const docValidity = activeCompany?.validity || "30 Days";
-            const companyName = activeCompany?.name || "BELLATEQ SMART LIVING";
             const companyTagline = activeCompany?.tagline || "";
             const companyGstin = activeCompany?.gstin || "";
             const companyAddress = activeCompany?.address || "";
@@ -307,7 +316,7 @@ export default function ExportSelector() {
                 <html>
                 <head>
                     <meta charset="utf-8" />
-                    <title>${companyName} — ${docTitle}</title>
+                    <title>${pdfName.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}</title>
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -632,13 +641,21 @@ export default function ExportSelector() {
             iframeDoc.close();
 
             const triggerPrint = () => {
+                const originalTitle = document.title;
                 try {
+                    document.title = pdfName;
+                    iframeDoc.title = pdfName;
                     printIframe.contentWindow.focus();
                     printIframe.contentWindow.print();
                 } catch (printErr) {
                     console.error("Print execution failed:", printErr);
                 } finally {
+                    const restoreTitle = () => {
+                        document.title = originalTitle;
+                    };
+                    window.addEventListener("afterprint", restoreTitle, { once: true });
                     setTimeout(() => {
+                        restoreTitle();
                         if (document.body.contains(printIframe)) {
                             document.body.removeChild(printIframe);
                         }

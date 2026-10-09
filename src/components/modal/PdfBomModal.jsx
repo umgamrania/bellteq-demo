@@ -27,8 +27,10 @@ export default function PdfBomModal({
     if (!isOpen) return null;
 
     const handleChoice = (includeBom) => {
-        onConfirm(includeBom, includeCompanyInfo);
         onClose();
+        setTimeout(() => {
+            onConfirm(includeBom, includeCompanyInfo);
+        }, 50);
     };
 
     const modalContent = (

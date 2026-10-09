@@ -386,22 +386,30 @@ export default function CartTab({ onSwitchToBreakdown }) {
     // ── Combined PDF ─────────────────────────────────────────────────────────
     const handleExportPdf = async (includeBom = true, includeCompanyInfo = true) => {
         if (cartItems.length === 0) return;
+
+        const activeCompany = companyInfo || COMPANY_INFO;
+        const docTitle = activeCompany?.quotationTitle || "QUOTATION";
+        const companyName = activeCompany?.name || "BELLATEQ SMART LIVING";
+        const defaultName = `${companyName} - Combined ${docTitle}`;
+
+        const userInput = window.prompt("Enter a name for the PDF file:", defaultName);
+        if (userInput === null) {
+            return;
+        }
+        const pdfName = userInput.trim() || defaultName;
+
         setIsExportingPdf(true);
 
         try {
             const today = new Date();
             const dateString = today.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
-            const activeCompany = companyInfo || COMPANY_INFO;
-
             const webAndEmail = [activeCompany?.email, activeCompany?.website].filter(Boolean).join(" &nbsp;·&nbsp; ");
             const contactParts = [];
             if (webAndEmail) contactParts.push(webAndEmail);
             if (activeCompany?.phone) contactParts.push(activeCompany.phone);
 
-            const docTitle = activeCompany?.quotationTitle || "QUOTATION";
             const docValidity = activeCompany?.validity || "30 Days";
-            const companyName = activeCompany?.name || "BELLATEQ SMART LIVING";
             const companyTagline = activeCompany?.tagline || "";
             const companyGstin = activeCompany?.gstin || "";
             const companyAddress = activeCompany?.address || "";
@@ -661,7 +669,7 @@ export default function CartTab({ onSwitchToBreakdown }) {
                 <html>
                 <head>
                     <meta charset="utf-8" />
-                    <title>${companyName} \u2014 Combined ${docTitle}</title>
+                    <title>${pdfName.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}</title>
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
                         @page { size: A4 portrait; margin: 14mm 16mm 20mm 16mm; }
@@ -761,8 +769,24 @@ export default function CartTab({ onSwitchToBreakdown }) {
             const iDoc = iframe.contentWindow.document;
             iDoc.open(); iDoc.write(printContent); iDoc.close();
             setTimeout(() => {
-                try { iframe.contentWindow.focus(); iframe.contentWindow.print(); }
-                finally { setTimeout(() => { if (document.body.contains(iframe)) document.body.removeChild(iframe); }, 2000); }
+                const originalTitle = document.title;
+                try {
+                    document.title = pdfName;
+                    iDoc.title = pdfName;
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                } catch (printErr) {
+                    console.error("Print execution failed:", printErr);
+                } finally {
+                    const restoreTitle = () => {
+                        document.title = originalTitle;
+                    };
+                    window.addEventListener("afterprint", restoreTitle, { once: true });
+                    setTimeout(() => {
+                        restoreTitle();
+                        if (document.body.contains(iframe)) document.body.removeChild(iframe);
+                    }, 2000);
+                }
             }, 350);
         } catch (err) {
             console.error("Error generating combined PDF:", err);
