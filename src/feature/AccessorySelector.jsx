@@ -97,13 +97,13 @@ export default function AccessorySelector() {
                 })}
             </div>
 
-            {accessories && (accessories["wifi-chip"] || Number(accessories["hi-load"]) > 0) && (
+            {accessories && (Number(accessories["wifi-chip"]) > 0 || Number(accessories["hi-load"]) > 0) && (
                 <div className={styles.summary}>
                     <span className={styles.summaryLabel}>Accessories total</span>
                     <span className={styles.summaryValue}>
                         {formatPrice
                             ? formatPrice(
-                                (accessories["wifi-chip"] ? (getAccessoryPrice?.("wifi-chip") ?? 0) : 0) +
+                                (Number(accessories["wifi-chip"]) * (getAccessoryPrice?.("wifi-chip") ?? 0)) +
                                 (Number(accessories["hi-load"]) * (getAccessoryPrice?.("hi-load") ?? 0))
               )
                             : "—"}

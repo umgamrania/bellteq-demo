@@ -5,7 +5,7 @@ export const ACCESSORIES = [
         id: "wifi-chip",
         name: "WiFi Chip",
         description: "Wi-Fi automation module for smart control",
-        type: "toggle", // yes / no only
+        type: "quantity", // 0, 1, 2 …
     },
     {
         id: "hi-load",

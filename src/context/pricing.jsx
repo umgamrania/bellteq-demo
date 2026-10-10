@@ -258,8 +258,8 @@ export default function PricingProvider({ children }) {
         let accessoriesCost = 0;
         if (accessoriesMap && typeof accessoriesMap === "object") {
             for (const [id, value] of Object.entries(accessoriesMap)) {
-                // wifi-chip is boolean; hi-load is a number qty
-                const qty = typeof value === "boolean" ? (value ? 1 : 0) : Math.max(0, Math.round(Number(value) || 0));
+                // All accessories use numeric qty
+                const qty = Math.max(0, Math.round(Number(value) || 0));
                 if (qty === 0) continue;
                 const unitPrice = getAccessoryPrice(id);
                 const totalPrice = unitPrice * qty;

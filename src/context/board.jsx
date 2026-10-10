@@ -17,8 +17,8 @@ export default function BoardContext({ children }) {
     const [components, setComponents] = useState({});
     const [activeSlot, setActiveSlot] = useState({});
     const [material, setMaterial] = useState(null);
-    // accessories: { "wifi-chip": boolean, "hi-load": number }
-    const [accessories, setAccessories] = useState({ "wifi-chip": false, "hi-load": 0 });
+    // accessories: { "wifi-chip": number, "hi-load": number }
+    const [accessories, setAccessories] = useState({ "wifi-chip": 0, "hi-load": 0 });
 
     // Wall visualizer mockup state (Step 6)
     const DEFAULT_WALL_SCALE = 0.55;
@@ -35,17 +35,12 @@ export default function BoardContext({ children }) {
     };
 
     /**
-     * Set the quantity / toggle for a single accessory.
-     * For "toggle" accessories (wifi-chip): value is treated as boolean.
-     * For "quantity" accessories (hi-load): value is clamped to >= 0.
+     * Set the quantity for a single accessory. Value is clamped to >= 0.
      */
     const setAccessoryQty = (id, value) => {
         const accessory = ACCESSORIES.find((a) => a.id === id);
         if (!accessory) return;
         setAccessories((prev) => {
-            if (accessory.type === "toggle") {
-                return { ...prev, [id]: Boolean(value) };
-            }
             const qty = Math.max(0, Math.round(Number(value) || 0));
             return { ...prev, [id]: qty };
         });
@@ -59,7 +54,7 @@ export default function BoardContext({ children }) {
         setComponents({});
         setActiveSlot({});
         setMaterial(null);
-        setAccessories({ "wifi-chip": false, "hi-load": 0 });
+        setAccessories({ "wifi-chip": 0, "hi-load": 0 });
         setWallImage(WALL_PRESETS[0]?.src || "");
         resetWallTransform();
         if (setActiveIdx) setActiveIdx(0);
@@ -336,7 +331,7 @@ export default function BoardContext({ children }) {
                 setMaterial(config.material);
             }
             if (config.accessories !== undefined && typeof config.accessories === "object") {
-                setAccessories({ "wifi-chip": false, "hi-load": 0, ...config.accessories });
+                setAccessories({ "wifi-chip": 0, "hi-load": 0, ...config.accessories });
             }
             if (config.activeSlot !== undefined) {
                 setActiveSlot(config.activeSlot || {});
